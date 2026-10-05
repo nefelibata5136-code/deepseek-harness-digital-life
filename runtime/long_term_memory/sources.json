@@ -1,0 +1,6 @@
+{
+  "sources": [],
+  "workspace": ".local/workspace",
+  "native_sessions": ".local/dsh-home/sessions",
+  "selection_locators": ".local/selection-locators"
+}

@@ -1,0 +1,9 @@
+{
+  "name": "persona-dots",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Persona external research delegation, replaceable transport",
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } },
+  "scripts": { "test": "node --test bridge.test.mjs" }
+}

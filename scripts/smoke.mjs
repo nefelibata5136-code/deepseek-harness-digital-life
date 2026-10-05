@@ -1,0 +1,31 @@
+import assert from 'node:assert/strict';
+import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { resolve } from 'node:path';
+import { randomUUID } from 'node:crypto';
+import { configure } from './configure.mjs';
+import { bootNative } from '../runtime/native_dsh/boot-native.mjs';
+import { fixtureTransport } from '../runtime/native_dsh/fixture-transport.mjs';
+await configure();
+const testRoot=await mkdtemp(resolve(tmpdir(),'digital-life-smoke-'));
+const workspace=resolve(testRoot,'workspace'),sessionId=randomUUID();
+await mkdir(workspace);await mkdir(resolve(workspace,'memory'));
+await writeFile(resolve(workspace,'persona-core.md'),'Synthetic smoke identity. No personal data.\n');
+await writeFile(resolve(workspace,'AGENTS.md'),'# Synthetic smoke workspace\n');
+await writeFile(resolve(workspace,'audit.txt'),'before\n');
+process.env.DEEPSEEK_API_KEY='offline-placeholder-not-a-secret';
+const fake=fixtureTransport(workspace);globalThis.fetch=fake.transport;
+const ctx=await bootNative({sessionId,testRoot});
+try{
+ await ctx.sessionController.create({sessionId,cwd:workspace});
+ const result=await ctx.sessionController.resolveAgent(sessionId);if('error' in result)throw result.error;
+ const errors=[];ctx.on('agent/error',(_agent,error)=>errors.push(error.message));
+ await ctx.sessionController.prompt({sessionId,requestId:randomUUID(),mode:'queue',content:[{type:'text',text:'Synthetic native Host smoke.'}]},new AbortController().signal);
+ await result.agent.whenIdle();ctx.personaLife.assertHealthy();
+ assert.deepEqual(errors,[]);assert.equal(fake.count(),3);
+ const text=await (await import('node:fs/promises')).readFile(resolve(workspace,'audit.txt'),'utf8');
+ assert.equal(text,'after\n');
+ assert.equal((await ctx.personaLife.store.settings()).residentEnabled,false);
+ const budget=await ctx.personaHost.status();assert.equal(budget.open_attempts,0);
+ console.log(JSON.stringify({passed:true,nativeHost:true,nativeFileReadWrite:true,paidModelCalls:0,realDesktopInput:false,residentPeriodicEnabled:false}));
+}finally{await ctx.fiber.dispose();}

@@ -1,0 +1,15 @@
+{
+  "workspace_id": "YOUR_DASHSCOPE_WORKSPACE_ID",
+  "embedding_model": "text-embedding-v4",
+  "rerank_model": "qwen3-rerank",
+  "dimension": 1024,
+  "timeout": 10,
+  "default_candidates": 30,
+  "default_results": 5,
+  "credential_ref": "DL_QWEN_API_KEY",
+  "raw_chat_to_embedding": false,
+  "api_docs": [
+    "https://help.aliyun.com/zh/model-studio/text-embedding-api",
+    "https://help.aliyun.com/zh/model-studio/text-rerank-api"
+  ]
+}

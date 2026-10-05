@@ -1,0 +1,9 @@
+mcp==1.26.0
+playwright==1.58.0
+Pillow==12.1.0
+httpx==0.28.1
+websockets==15.0.1
+rapidocr-onnxruntime==1.4.4
+oss2==2.19.1
+alibabacloud-credentials==1.0.12
+alibabacloud-green20220302==3.5.7

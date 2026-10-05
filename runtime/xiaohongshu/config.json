@@ -1,0 +1,25 @@
+{
+  "host": "127.0.0.1",
+  "port": 18749,
+  "cdp_url": "http://127.0.0.1:18745",
+  "browser_control": "./runtime/browser/browser_control.py",
+  "browser_python": "./runtime/browser/.venv/Scripts/python.exe",
+  "private_root": ".local/xiaohongshu",
+  "operation_timeout_seconds": 24,
+  "queue_timeout_seconds": 2,
+  "min_navigation_interval_seconds": 0.5,
+  "image_max_dimension": 1800,
+  "image_max_bytes": 700000,
+  "max_cached_notes": 120,
+  "enable_image_export": true,
+  "ocr": {
+    "provider": "qwen3.5-ocr",
+    "endpoint": "https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation",
+    "batch_images": 4,
+    "max_concurrency": 2,
+    "max_side": 10000,
+    "max_pixels": 15679488,
+    "max_bytes": 10485760,
+    "cache_root": ".local/xiaohongshu/ocr-cache"
+  }
+}

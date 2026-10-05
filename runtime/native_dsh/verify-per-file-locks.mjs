@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {createFileLocks} from '../workspace_foundation/file-operation-locks.mjs';
+import {writeFile} from 'node:fs/promises';
+const locks=createFileLocks();const signal=new AbortController().signal;
+const first=await locks.acquire('a','a1',signal);let sameStarted=false;
+const same=locks.acquire('a','a2',signal).then(l=>{sameStarted=true;return l;});
+const different=await locks.acquire('b','b1',signal);assert.equal(sameStarted,false);
+const cancel=new AbortController();let cancelledRan=false;
+const cancelled=locks.acquire('a','cancel',cancel.signal).then(()=>{cancelledRan=true;});
+let wildcardStarted=false;const wildcard=locks.acquire(null,'terminal',signal).then(l=>{wildcardStarted=true;return l;});
+let lateStarted=false;const late=locks.acquire('c','late',signal).then(l=>{lateStarted=true;return l;});
+cancel.abort(Error('fixture cancellation'));await assert.rejects(cancelled,/fixture cancellation/);
+assert.equal(wildcardStarted,false);assert.equal(lateStarted,false);
+first.release();const second=await same;assert(sameStarted);assert(!wildcardStarted);second.release();different.release();
+const wide=await wildcard;assert(wildcardStarted);assert(!lateStarted);wide.release();const last=await late;last.release();assert(!cancelledRan);assert.deepEqual(locks.owners,[]);locks.dispose();
+const report={passed:true,sameFileSerialized:true,differentFilesParallel:true,cancelledWaiterSkipped:true,opaqueToolExclusive:true,opaqueToolNotStarved:true,observedAt:new Date().toISOString(),paidModelCalls:0};
+await writeFile(new URL('../../reports/task_A/per-file-lock-validation.json',import.meta.url),JSON.stringify(report,null,2));console.log(JSON.stringify(report));

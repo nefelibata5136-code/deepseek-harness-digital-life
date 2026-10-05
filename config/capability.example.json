@@ -1,0 +1,8 @@
+{
+  "id": "example",
+  "kind": "plugin",
+  "description": "A reviewed local capability",
+  "enabled": false,
+  "credentialRefs": [],
+  "approval": null
+}

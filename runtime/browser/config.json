@@ -1,0 +1,8 @@
+{
+  "chrome": "CHROME_EXECUTABLE_PATH",
+  "private_root": ".local/browser",
+  "profile": ".local/browser/chrome-profile",
+  "cdp_port": 18745,
+  "browser_use": "0.13.10",
+  "headless": false
+}

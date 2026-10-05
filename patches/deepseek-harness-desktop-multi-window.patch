@@ -1,0 +1,219 @@
+diff --git a/apps/desktop/src/main.ts b/apps/desktop/src/main.ts
+index b4b8153..ca54028 100644
+--- a/apps/desktop/src/main.ts
++++ b/apps/desktop/src/main.ts
+@@ -339,6 +339,9 @@ async function main(): Promise<void> {
+   let quitting = false
+   let startup: Promise<void> | undefined
+   let workspaceRecovery: Promise<void> | undefined
++  const productWindows = new Set<BrowserWindow>()
++  const productWindowFor = (contents?: Electron.WebContents): BrowserWindow | undefined =>
++    contents === undefined ? mainWindow : [...productWindows].find(window => !window.isDestroyed() && window.webContents === contents)
+   let mainWindow: BrowserWindow | undefined
+   let welcomeWindow: BrowserWindow | undefined
+   let enteredWorkspace = false
+@@ -416,6 +419,7 @@ async function main(): Promise<void> {
+   let pendingWelcomeNotice: WelcomeNotice | undefined
+   let previousAccountStatus: string | undefined
+   const assertProductSender = (event: IpcMainInvokeEvent): void => {
++    const mainWindow = productWindowFor(event.sender)
+     assertDesktopSender(event, ['app'])
+     if (mainWindow === undefined || mainWindow.isDestroyed() || event.sender !== mainWindow.webContents
+       || event.senderFrame === null || event.senderFrame !== mainWindow.webContents.mainFrame) {
+@@ -544,7 +548,7 @@ async function main(): Promise<void> {
+           if (quitting) return
+           // A replacement Host can have a new port, cookie, or boot injections even at the same URL.
+           navigation = undefined
+-          await navigateMain(applicationUrl)
++          await Promise.all([...productWindows].map(window => window.loadURL(applicationUrl)))
+           if (backend.host !== undefined) updateJournal?.action('workspace-ready')
+         })
+         workspaceRecovery = recovery
+@@ -676,10 +680,10 @@ async function main(): Promise<void> {
+     return Promise.resolve(new Response(null, { status: 404 }))
+   })
+ 
+-  installDesktopDirectoryPicker(() => mainWindow)
+-  installMicrophonePermissions(session.defaultSession, () => mainWindow?.webContents)
+-  const shortcuts = installDesktopShortcuts(() => mainWindow, app.getPath('userData'),
+-    process.platform === 'darwin' ? 'macos' : process.platform === 'win32' ? 'windows' : 'linux', () => { refreshApplicationMenu() }, window => updateOverlays.input(window))
++  installDesktopDirectoryPicker(productWindowFor)
++  installMicrophonePermissions(session.defaultSession, () => mainWindow?.webContents, contents => productWindowFor(contents) !== undefined)
++  const shortcuts = installDesktopShortcuts(productWindowFor, app.getPath('userData'),
++    process.platform === 'darwin' ? 'macos' : process.platform === 'win32' ? 'windows' : 'linux', () => { refreshApplicationMenu() }, window => updateOverlays.input(window), () => { void openNewWindow() })
+   app.on('will-quit', () => { shortcuts.dispose() })
+ 
+   ipcMain.handle(DESKTOP_IPC.boot, async (event) => {
+@@ -690,6 +694,7 @@ async function main(): Promise<void> {
+   })
+ 
+   ipcMain.handle(DESKTOP_IPC.bootFailed, (event, message: unknown) => {
++    const mainWindow = productWindowFor(event.sender)
+     assertDesktopSender(event, ['app'])
+     if (event.sender !== mainWindow?.webContents || event.senderFrame !== event.sender.mainFrame) {
+       throw new Error('dsh desktop: rejected startup failure from a non-primary frame')
+@@ -708,7 +713,7 @@ async function main(): Promise<void> {
+   })
+ 
+   session.defaultSession.webRequest.onBeforeSendHeaders({ urls: ['ws://127.0.0.1/*'] }, (details, callback) => {
+-    if (hostUrl === undefined || hostCookie === undefined || details.webContentsId !== mainWindow?.webContents.id) {
++    if (hostUrl === undefined || hostCookie === undefined || !([...productWindows].some(window => window.webContents.id === details.webContentsId))) {
+       callback({})
+       return
+     }
+@@ -721,7 +726,7 @@ async function main(): Promise<void> {
+   })
+ 
+   const assertMainApplication = (event: IpcMainInvokeEvent): BrowserWindow => {
+-    const owner = mainWindow
++    const owner = productWindowFor(event.sender)
+     if (owner === undefined || event.sender !== owner.webContents || event.senderFrame !== owner.webContents.mainFrame
+       || !event.senderFrame.url.startsWith('dsh-app://app/')) throw new Error('Rejected Platform command')
+     return owner
+@@ -742,10 +747,12 @@ async function main(): Promise<void> {
+   ipcMain.handle(PLATFORM_IPC.close, (event) => { assertMainApplication(event); platformView.close() })
+   // Only the main window may synchronize its palette with the native material.
+   ipcMain.on(DESKTOP_IPC.nativeThemeSet, (event, source: unknown) => {
++    const mainWindow = productWindowFor(event.sender)
+     if (mainWindow === undefined || event.sender !== mainWindow.webContents) return
+     if (source === 'light' || source === 'dark' || source === 'system') nativeTheme.themeSource = source
+   })
+   ipcMain.handle(DESKTOP_IPC.localeBootstrap, async (event) => {
++    const mainWindow = productWindowFor(event.sender)
+     if (event.sender !== mainWindow?.webContents || event.senderFrame !== mainWindow.webContents.mainFrame
+       || new URL(event.senderFrame.url).origin !== new URL(applicationUrl).origin) {
+       throw new Error('desktop welcome: rejected locale request from an unowned frame')
+@@ -754,6 +761,7 @@ async function main(): Promise<void> {
+     return { languages: systemLanguages, preference: await welcomeBackend.readLocalePreference() }
+   })
+   ipcMain.on(DESKTOP_IPC.localeChanged, (event, next: unknown) => {
++    const mainWindow = productWindowFor(event.sender)
+     const window = mainWindow
+     if (window === undefined || event.sender !== window.webContents || event.senderFrame !== window.webContents.mainFrame
+       || typeof next !== 'string') return
+@@ -777,6 +785,7 @@ async function main(): Promise<void> {
+     return (await readWelcomeState()).hasApiKey
+   })
+   ipcMain.on(DESKTOP_IPC.onboardingActive, (event, active: unknown) => {
++    const mainWindow = productWindowFor(event.sender)
+     const window = mainWindow
+     if (window === undefined || window.isDestroyed() || event.sender !== window.webContents
+       || event.senderFrame !== window.webContents.mainFrame
+@@ -944,7 +953,15 @@ async function main(): Promise<void> {
+       { role: 'hideOthers', label: currentDesktopLocale().messages.hideOtherApplications },
+       { role: 'unhide', label: currentDesktopLocale().messages.showAllApplications }, { type: 'separator' }]
+     : []
++  const newWindowItem = (): MenuItemConstructorOptions => ({
++    label: currentDesktopLocale().messages.newWindow,
++    accelerator: 'CommandOrControl+Shift+N',
++    enabled: enteredWorkspace && backend.state.phase === 'ready' && !isMandatory(),
++    click: () => { void openNewWindow() },
++  })
+   const applicationItems = (): MenuItemConstructorOptions[] => [
++    newWindowItem(),
++    { type: 'separator' },
+     // Windows has no system About panel; Electron's fallback is a plain
+     // message box, so the shell shows its own dimmed dialog instead.
+     process.platform === 'win32'
+@@ -974,7 +991,7 @@ async function main(): Promise<void> {
+     { role: 'toggleDevTools', visible: false, accelerator: 'F12' },
+   ]
+   const refreshApplicationMenu = (): void => {
+-    Menu.setApplicationMenu(Menu.buildFromTemplate(process.platform === 'win32' ? devToolsItems : [{
++    Menu.setApplicationMenu(Menu.buildFromTemplate(process.platform === 'win32' ? [newWindowItem(), ...devToolsItems] : [{
+       label: darwin ? app.name : currentDesktopLocale().messages.application,
+       submenu: [...applicationItems(), ...devToolsItems],
+     }, ...platformMenus()]))
+@@ -1008,6 +1025,7 @@ async function main(): Promise<void> {
+ 
+   if (process.platform === 'win32') {
+     ipcMain.handle(DESKTOP_IPC.windowsMenu, (event, name: unknown, x: unknown, y: unknown) => {
++    const mainWindow = productWindowFor(event.sender)
+       assertDesktopSender(event, ['app'])
+       if (mainWindow === undefined || event.sender !== mainWindow.webContents
+         || event.senderFrame !== mainWindow.webContents.mainFrame) throw new Error('desktop menu: rejected sender')
+@@ -1040,6 +1058,7 @@ async function main(): Promise<void> {
+       })
+     })
+     ipcMain.on(DESKTOP_IPC.windowsAppearance, (event, language: unknown, color: unknown, symbolColor: unknown) => {
++    const mainWindow = productWindowFor(event.sender)
+       if (mainWindow === undefined || event.sender !== mainWindow.webContents
+         || event.senderFrame !== mainWindow.webContents.mainFrame) return
+       if (!event.senderFrame.url.startsWith(`${SCHEME}://app/`)) return
+@@ -1064,7 +1083,9 @@ async function main(): Promise<void> {
+   }
+   const createMainWindow = (): BrowserWindow => {
+     const window = createWindow(appPreload, false, true)
+-    mainWindow = window
++    productWindows.add(window)
++    mainWindow ??= window
++    window.on('focus', () => { mainWindow = window })
+     browserGuests.bind(window, (guest, name) => shortcuts.attachGuest(window, guest, name))
+     shortcuts.attach(window)
+     window.on('focus', automaticCheck)
+@@ -1073,6 +1094,7 @@ async function main(): Promise<void> {
+       if (quitting || shellInstallerOwnsQuit || sessionEnding) return
+       event.preventDefault()
+       if (updateDialog.isOpen) { updateDialog.focus(); return }
++      if (productWindows.size > 1) { window.destroy(); return }
+       const hide = (): void => {
+         if (!quitting && !shellInstallerOwnsQuit && !sessionEnding && !window.isDestroyed()) hideMainWindow(window)
+       }
+@@ -1089,7 +1111,10 @@ async function main(): Promise<void> {
+       window.on('focus', () => { sessionEnding = false })
+       window.on('show', () => { sessionEnding = false })
+     }
+-    window.on('closed', () => { if (mainWindow === window) mainWindow = undefined })
++    window.on('closed', () => {
++      productWindows.delete(window)
++      if (mainWindow === window) mainWindow = [...productWindows].at(-1)
++    })
+     window.webContents.on('console-message', (details) => {
+       if (details.level !== 'error') return
+       rendererConsole.push(`${details.sourceId}:${String(details.lineNumber)} ${details.message}`)
+@@ -1110,6 +1135,19 @@ async function main(): Promise<void> {
+     })
+     return window
+   }
++  const openNewWindow = async (): Promise<void> => {
++    if (quitting || recovery.active || isMandatory() || !enteredWorkspace || backend.state.phase !== 'ready') return
++    const window = createMainWindow()
++    try {
++      await window.loadURL(applicationUrl)
++      if (quitting || isMandatory() || !enteredWorkspace || window.isDestroyed()) { if (!window.isDestroyed()) window.destroy(); return }
++      window.show()
++      window.focus()
++    } catch (error) {
++      if (!window.isDestroyed()) window.destroy()
++      console.error('desktop new window:', error)
++    }
++  }
+   const enterWorkspace = async ({ activate = true }: { activate?: boolean } = {}): Promise<void> => {
+     if (quitting) return
+     const window = mainWindow ?? createMainWindow()
+@@ -1118,6 +1156,7 @@ async function main(): Promise<void> {
+     if (activate) window.show()
+     else window.showInactive()
+     enteredWorkspace = true
++    refreshApplicationMenu()
+     if (welcomeWindow !== undefined) {
+       welcomeWindow.close()
+       window.webContents.send(DESKTOP_IPC.enterWorkspace)
+@@ -1190,7 +1229,7 @@ async function main(): Promise<void> {
+         else app.quit()
+       })
+       if (isQuitting() || recovery.active || enteredWorkspace) window.close()
+-      else mainWindow?.hide()
++      else for (const window of productWindows) window.hide()
+     })().finally(() => { openingWelcome = undefined })
+     return openingWelcome
+   }
+@@ -1247,7 +1286,7 @@ async function main(): Promise<void> {
+     tray?.dispose()
+     stopAccount?.()
+     if (welcomeWindow !== undefined && !welcomeWindow.isDestroyed()) welcomeWindow.hide()
+-    if (mainWindow !== undefined && !mainWindow.isDestroyed()) mainWindow.hide()
++    for (const window of productWindows) if (!window.isDestroyed()) window.hide()
+     updateSchedule.dispose()
+     updateDialog.dispose()
+     mandatoryUI?.dispose()

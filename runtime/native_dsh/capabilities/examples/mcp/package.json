@@ -1,0 +1,8 @@
+{
+  "name": "persona-capability-mcp-template",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Configuration-only native MCP bundle template; edit before installation",
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
+}

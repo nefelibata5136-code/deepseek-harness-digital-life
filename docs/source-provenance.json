@@ -1,0 +1,1019 @@
+{
+  "version": 1,
+  "history": "Fresh repository; no deployment history or state imported",
+  "adaptations": "Persona identifiers, public configuration, paths and launch seams generalized; public tests listed in validation",
+  "files": [
+    {
+      "file": "runtime/workspace_foundation/files.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "313b50bf561eedf2ed95c13beb547a7a1c0c9fd8e644552e1a52bac343f4d478",
+      "export_sha256": "f6d7783808beb34fdea30494fbb6c80c2bb8a4067aa31edbe08a8938f121b613"
+    },
+    {
+      "file": "runtime/workspace_foundation/file-operation-locks.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "36b9835a8b7baa36aac006e90e6c094e7f1a257a4e7b5302d8641733110bd9be",
+      "export_sha256": "82030be899cbcd30bb7fb97f43e10846e71668f1315bbef31e9a96a0296f70e1"
+    },
+    {
+      "file": "runtime/workspace_foundation/lifecycle.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "1f4b149ca61c8ba66e096950c4b1488c5869e6ea91949cc79129119207afcaec",
+      "export_sha256": "14c9105441a0fe5a301b82ec35d0f7be6b24e0e8520c7a26ca1f8ee4c2773311"
+    },
+    {
+      "file": "runtime/workspace_foundation/snapshots.py",
+      "origin": "deployment extension",
+      "source_sha256": "9d94017e2ce38c86d6cc1578b5f5460038491fe9f90af419e3e463f0a533c53c",
+      "export_sha256": "a8754d24b0acc0c4937a4ff0fc4f1d96636f6cf7bb92252a4698dc368e361068"
+    },
+    {
+      "file": "runtime/workspace_foundation/native.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "e077340bc04134e756c632b11abc0c646a8039aee8b2f25c2d1992bf57e079c5",
+      "export_sha256": "e077340bc04134e756c632b11abc0c646a8039aee8b2f25c2d1992bf57e079c5"
+    },
+    {
+      "file": "runtime/workspace_foundation/skills.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "a0c8473d6e2a90004b035a887f3c796b5e70c989622afdec0eff51defc9cec5b",
+      "export_sha256": "a0c8473d6e2a90004b035a887f3c796b5e70c989622afdec0eff51defc9cec5b"
+    },
+    {
+      "file": "runtime/workspace_foundation/extensions.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "561ad5cc94cba026b27a8461e24ae141f56fda5e45f6117491f414e91af095c9",
+      "export_sha256": "c3887523c147c3ee4793fe1485b2f8585eca72990150d7d46a4064ef4eb4a405"
+    },
+    {
+      "file": "runtime/workspace_foundation/hello-plugin.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "a7b019247cf3dc618bd04ed8d6d9b14fdefcb5d1cb16bd58757237faf50027af",
+      "export_sha256": "60ee8873afc0016e22815ede8cfe4b6b92f4adaefcfc0e3d1f4a635615aa5a5c"
+    },
+    {
+      "file": "runtime/workspace_foundation/terminal_bridge.py",
+      "origin": "deployment extension",
+      "source_sha256": "9a0d777c6b71b7e7b826b532b8db6352cbd3680050d25bfe711b0e4b438796f1",
+      "export_sha256": "c9781acaa5fc3ceb7328a1316c36361041d1bb92333a5a8da464883ceb69e6a3"
+    },
+    {
+      "file": "runtime/workspace_foundation/xiaohongshu-read-policy.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "71cb8f3e99e174cf6fd63255d1d125e84bf483aaaf06695c7bd824fb77bb2dbd",
+      "export_sha256": "71cb8f3e99e174cf6fd63255d1d125e84bf483aaaf06695c7bd824fb77bb2dbd"
+    },
+    {
+      "file": "runtime/workspace_foundation/xiaohongshu-read-policy.test.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "0cf7e6ab794daf1a4146cd24228c9a2a491268025f112a693d96989edf5f2a18",
+      "export_sha256": "0cf7e6ab794daf1a4146cd24228c9a2a491268025f112a693d96989edf5f2a18"
+    },
+    {
+      "file": "runtime/workspace_foundation/verify_versions.py",
+      "origin": "deployment extension",
+      "source_sha256": "27eedfaa4e73666e764a17aaf6aefa50ae28dd2a26d32056186dc4cbd69327b5",
+      "export_sha256": "27eedfaa4e73666e764a17aaf6aefa50ae28dd2a26d32056186dc4cbd69327b5"
+    },
+    {
+      "file": "runtime/workspace_foundation/crash_fixture.py",
+      "origin": "deployment extension",
+      "source_sha256": "c9ba5744e0d80e167998a6d21c4a2ae78b3faf98f3ece66038bc63f5922dfc83",
+      "export_sha256": "c9ba5744e0d80e167998a6d21c4a2ae78b3faf98f3ece66038bc63f5922dfc83"
+    },
+    {
+      "file": "runtime/self_maintenance/change.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "538f384c2f1d945ecffd158ec1bc3d427e7d4fd28de785e7027d3817bf5db032",
+      "export_sha256": "538f384c2f1d945ecffd158ec1bc3d427e7d4fd28de785e7027d3817bf5db032"
+    },
+    {
+      "file": "runtime/self_maintenance/verify-change.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "d8189b9603bc0f4be8deb58039e0a6c2adafd75c5d9753978aebaf7bb1aceab6",
+      "export_sha256": "9df11ead1fa535aa04e3f0772696ff4e84d110684e31127f86128a8e54a31ca1"
+    },
+    {
+      "file": "runtime/budget_guard/__init__.py",
+      "origin": "deployment extension",
+      "source_sha256": "c9c5476182898007fc4eabf1a6ef30b1ee5a1d55e91f46f8d67ccba976f68ca8",
+      "export_sha256": "c9c5476182898007fc4eabf1a6ef30b1ee5a1d55e91f46f8d67ccba976f68ca8"
+    },
+    {
+      "file": "runtime/budget_guard/authority.py",
+      "origin": "deployment extension",
+      "source_sha256": "f43917af9efe3cb6a9a93a93ce5e47ee1ff8e559aaeb203924a11feb04f8bc11",
+      "export_sha256": "3d0a4a4ef1184ee3fc16ab047c5ce347a3dea0e8cc0c0363f73c1d6b662505e5"
+    },
+    {
+      "file": "runtime/budget_guard/pricing.py",
+      "origin": "deployment extension",
+      "source_sha256": "8d530d74c93a692fb7fd0d85b2d350ba246177f66046d40693190abd7d16707a",
+      "export_sha256": "8d530d74c93a692fb7fd0d85b2d350ba246177f66046d40693190abd7d16707a"
+    },
+    {
+      "file": "runtime/budget_guard/compat.py",
+      "origin": "deployment extension",
+      "source_sha256": "19cf1589f0d6a16bf20de13f98e707d3b3eeb0c2a0d5cfc5c072c434a839c216",
+      "export_sha256": "19cf1589f0d6a16bf20de13f98e707d3b3eeb0c2a0d5cfc5c072c434a839c216"
+    },
+    {
+      "file": "runtime/budget_guard/provider_gate.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "41ac8d2c2aeeb939993c752e446e25d11c98bd8e6d1e09fc63a4652d301881e0",
+      "export_sha256": "b01c606efeb0db45ea1fe7a80f784c3051361e996cf53a2021c27a8aa05e351b"
+    },
+    {
+      "file": "runtime/budget_guard/usage_report.py",
+      "origin": "deployment extension",
+      "source_sha256": "aaa19da3828e1518495f8ed9a15d553baea166b4b8b7d89347d98bd0a2125794",
+      "export_sha256": "aaa19da3828e1518495f8ed9a15d553baea166b4b8b7d89347d98bd0a2125794"
+    },
+    {
+      "file": "runtime/budget_guard/test_authority.py",
+      "origin": "deployment extension",
+      "source_sha256": "7e7c7d8eb0f786cfa747f46c41e8b86ece80c84c75bc57bf0496a9c0407a18e4",
+      "export_sha256": "82bd0b0a8b905a94c299e0256524507589003bc5408071e1244967798c96108c"
+    },
+    {
+      "file": "runtime/budget_guard/test_usage_report.py",
+      "origin": "deployment extension",
+      "source_sha256": "8f855d786fbe25ffb1e3208738612b04d0d3d32e576ae81fa349ccb454a89737",
+      "export_sha256": "8f855d786fbe25ffb1e3208738612b04d0d3d32e576ae81fa349ccb454a89737"
+    },
+    {
+      "file": "runtime/budget_guard/test_provider_gate.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "970d68beca0caca075d2427fbc144278c28e2125d9b51e34ace7073080f94999",
+      "export_sha256": "f6317eb826cafdfdca2705159a54f49844ec11db564e4ac769755575dfc9f1c4"
+    },
+    {
+      "file": "runtime/time_host/time-host.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "53be0ed6f5e2747afd07bd67851a0dae8dfbe852662ee425f18b74a87e5639a5",
+      "export_sha256": "e053319b595f290f0e7307524d7ddf6ec978714ccb78a12e5557e79fe85bf705"
+    },
+    {
+      "file": "runtime/time_host/time-host-plugin.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "3b891c33b39ef4a7da25dc4f48dee5076c7dfb6f57f9a3e0f4bdcbb5bca0b5c4",
+      "export_sha256": "a6d89f778aa4380fd3f58d76674ecd2dafb93543e2cd47e56dce4f23507f7c0d"
+    },
+    {
+      "file": "runtime/time_host/budget-adapter.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "988f00daa19b2c1735347a2859cda026a71b0ef87f742f1fa59790f6e699ca45",
+      "export_sha256": "988f00daa19b2c1735347a2859cda026a71b0ef87f742f1fa59790f6e699ca45"
+    },
+    {
+      "file": "runtime/time_host/host-lifecycle.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "4a0624e514d51efa30771b4614014b89b1300c919d767cb636807639cb706ca3",
+      "export_sha256": "f0552e32aa9caafac4adf21fd109b82b4a6e6df75d097c78c73bc76d4d6f286a"
+    },
+    {
+      "file": "runtime/time_host/clock.py",
+      "origin": "deployment extension",
+      "source_sha256": "5efcf4550e23e4f189949da1e22571602d4f00bea04d8e8dec8e6f5f4bf94354",
+      "export_sha256": "5efcf4550e23e4f189949da1e22571602d4f00bea04d8e8dec8e6f5f4bf94354"
+    },
+    {
+      "file": "runtime/time_host/verify-budget-adapter.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "63b9d176e957785bf847d9ec6ad8f9b51900be264bf30c014dc51284d1c717ab",
+      "export_sha256": "29c0cbd81788c84201bc205af255c88634ccf31355c6e783242c19fe9c3473e4"
+    },
+    {
+      "file": "runtime/time_host/budget-test-fixture.py",
+      "origin": "deployment extension",
+      "source_sha256": "10b9899f85cd722ed3485e16262de7b9672b7afcf04cdc02516add54f83beeae",
+      "export_sha256": "10b9899f85cd722ed3485e16262de7b9672b7afcf04cdc02516add54f83beeae"
+    },
+    {
+      "file": "runtime/key_output_guard/detector.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "1753a018d4fc65bad769d26e258195407253b998a3203ab1ead4bd80c84978ed",
+      "export_sha256": "1753a018d4fc65bad769d26e258195407253b998a3203ab1ead4bd80c84978ed"
+    },
+    {
+      "file": "runtime/key_output_guard/guard.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "32cb7cc407cf43e01cb903ebb7b13e6b1b02e2675adebae65a151e6c1a051c7a",
+      "export_sha256": "32cb7cc407cf43e01cb903ebb7b13e6b1b02e2675adebae65a151e6c1a051c7a"
+    },
+    {
+      "file": "runtime/key_output_guard/verify.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "6b9ccf80ee02a9a70ffdf1db3b31bf30b7e8866c9567754bf07f744752d08fb8",
+      "export_sha256": "d4cd1960286833a240cc2fc117185a76ccf1e3961e061514076cac0fd255fec2"
+    },
+    {
+      "file": "runtime/activity_progress/events.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "38b1f3590dd7196dd8ee07296fac083c8daca1e09f6a9ec11168d62ee583ae03",
+      "export_sha256": "6df9667dfc61568b7a65567478dc13315a2eae71221e83afc495c2a9de41f9ec"
+    },
+    {
+      "file": "runtime/activity_progress/host.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "6ca2f427e72c9146e797d1f61d96cd805bd0e0876998270095eccb881710e1a2",
+      "export_sha256": "0a2bf4d9d49a0a81760c8e43d3454f07e337ebfca9b65394e548c8e5ff85f2e2"
+    },
+    {
+      "file": "runtime/activity_progress/phases.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "a5f059d71324497717550ccac509456cefe390363e20ca1c5814c3a88151d002",
+      "export_sha256": "a5f059d71324497717550ccac509456cefe390363e20ca1c5814c3a88151d002"
+    },
+    {
+      "file": "runtime/activity_progress/policy.json",
+      "origin": "deployment extension",
+      "source_sha256": "56022938a8b117231b8f776590a16da1447ba2d670504c49014b99de5b2004ed",
+      "export_sha256": "56022938a8b117231b8f776590a16da1447ba2d670504c49014b99de5b2004ed"
+    },
+    {
+      "file": "runtime/activity_progress/verify.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "8ad7e254b9f4e9a4c987f7898de951606a847a1bf50f2da8898960f72fc98695",
+      "export_sha256": "86e8c598e3a2baabc622c07d46359b7d74508e9599286fa86b8045790e79a84f"
+    },
+    {
+      "file": "runtime/native_dsh/boot-native.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "c5bcda9a13a82684745e9821a3c689284478bec773e948d1a6a0954271e672f2",
+      "export_sha256": "4bf9a5314281f1a37ef902e6c0dae5d22011bf997e0ea7c951d53972b0acd8a9"
+    },
+    {
+      "file": "runtime/native_dsh/persona-plugin.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "008ac1d7e00e93adf278fe414c4359593ebc3d1435f8870021f6a3b1bf7305d3",
+      "export_sha256": "64bae8e41b3a2ea11342898ce40d38922fe33957482ad6a894280a974b10fd91"
+    },
+    {
+      "file": "runtime/native_dsh/persona-compaction.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "6f4fb8dbba649f398c75a40b8dd796298346b060191db63158a1bf8df931815b",
+      "export_sha256": "6df32003127d031cabcdba2e2b6ac8ad58f098bd14bb0beeb164c85bbe563ceb"
+    },
+    {
+      "file": "runtime/native_dsh/self-compaction.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "b2099d7ecaebee6ee5de5099757cbf80bfad32552922abe5c4cb6426e06f7af6",
+      "export_sha256": "b2099d7ecaebee6ee5de5099757cbf80bfad32552922abe5c4cb6426e06f7af6"
+    },
+    {
+      "file": "runtime/native_dsh/author-pressure.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "e5ac641b75f65c5e18434879c319d7da18aba55f42d839beacf8f64e6d91eacf",
+      "export_sha256": "e5ac641b75f65c5e18434879c319d7da18aba55f42d839beacf8f64e6d91eacf"
+    },
+    {
+      "file": "runtime/native_dsh/budget-host.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "396e7c19b6ff186b9f851e2c0961976602a353da7040fafb4bcac24b9f442b3b",
+      "export_sha256": "c3ab479ae8d31b5f3ac9644d3c1ddab9c3c34615e1a72d4d5834c3b4a0005811"
+    },
+    {
+      "file": "runtime/native_dsh/foundation-host.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "b702e4e95cd2e028f361dde7ffe0741e0095f59948cc6bc273798530405e4538",
+      "export_sha256": "ce57c62b1ffd90bc98d0188fb13f01e6a0582d8a5dd106084a100e3c907d0235"
+    },
+    {
+      "file": "runtime/native_dsh/host-components.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "24dd2c87eccefc431dac3fe20e01a4c8f6c4c6e3e05112d27006278802faa493",
+      "export_sha256": "6ad123c34a396ccacd6875a2240a42fce85dfa6cb14d08a79ac9bbaa34c7163a"
+    },
+    {
+      "file": "runtime/native_dsh/task-host.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "67c3446c56ac3d7fa09ab8422f3590af5be93bcdcc06b8ac35d9601f295a680b",
+      "export_sha256": "be1514fc865e64bb8c06a7e2172029daf3579cb5d2ff71e0e13a93638286c22b"
+    },
+    {
+      "file": "runtime/native_dsh/text-channel.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "fbae5d977cdf96a0828956e39ebae3be6d2caaaf493b287a4c731fc5bb854c2a",
+      "export_sha256": "fbae5d977cdf96a0828956e39ebae3be6d2caaaf493b287a4c731fc5bb854c2a"
+    },
+    {
+      "file": "runtime/native_dsh/steering.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "82743b9170975183fc2515f724ead044f9674114a36a2b1018db6113cc5b2deb",
+      "export_sha256": "82743b9170975183fc2515f724ead044f9674114a36a2b1018db6113cc5b2deb"
+    },
+    {
+      "file": "runtime/native_dsh/computer-host.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "001d1c017fb5f18533d40b1321f1eb6c38145ad0d3d75a4697eb229f6e1077be",
+      "export_sha256": "cab16aee29c09c9e6db2cd6b2da98bc7eb15dc6a2b780e482d196dbba17c5e56"
+    },
+    {
+      "file": "runtime/native_dsh/desktop-overlay.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "57fda631dbf1870157022c4eaeff9900e4c0ab9183a239726834d3e6b33ef884",
+      "export_sha256": "62125d0c8a50832397572514d0e60764c64c146d4515e4f28a9873442415429d"
+    },
+    {
+      "file": "runtime/native_dsh/desktop-overlay.py",
+      "origin": "deployment extension",
+      "source_sha256": "fe2481d697283cf20cb952e8050b6787289a7fe29f6e68cdc18f25df00eb47b3",
+      "export_sha256": "5c707c7c6a8a77e1919a274e66f6e5e6eadd58a43cf4df3f3239233ed74b8002"
+    },
+    {
+      "file": "runtime/native_dsh/windows-dpi.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "94b7e939192ea120425bc1860314a859eac498531d23ddaf5ae929787a632c8d",
+      "export_sha256": "94b7e939192ea120425bc1860314a859eac498531d23ddaf5ae929787a632c8d"
+    },
+    {
+      "file": "runtime/native_dsh/fixture-transport.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "5c896ac71f4290660b8af618dc3e1bb1657fcf60a772cb960e6df36351bd7993",
+      "export_sha256": "47e04fa96feabf038c43877d7a27c3ef24bf4ce2d0c9b71b8bc3720696c01f9f"
+    },
+    {
+      "file": "runtime/native_dsh/verify-self-compaction.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "79f65bdf531f94a184983b5a1037837825960e9a2362dbe199f9c2fb85fbcca9",
+      "export_sha256": "3e4d680dc0e323351d1b6e93c0fe039245b6739c8603201210d4d886bc027948"
+    },
+    {
+      "file": "runtime/native_dsh/verify-compaction.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "6f4ae1abca983ba887e1946cb06738e16e04b0705e01a60978b60c168699c8fd",
+      "export_sha256": "b7a237bc775ac171b29b5ccc38dbcb8651cb74bcf30ba0155f2596d7e441ce7d"
+    },
+    {
+      "file": "runtime/native_dsh/verify-compaction-crash.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "87f7bacd49eb0b6c2c31b5d36da68f023fc0503bc372a7eae6d7803f16fb8685",
+      "export_sha256": "1ead64c74ffa18cf214e14e84021e155c7410175192842a7c8f11fd1b06f4bd6"
+    },
+    {
+      "file": "runtime/native_dsh/verify-parallel-conversations.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "3566a3cf23cc1393fef25a7788d5f9d3b9b036b8309d90d07f1bc9081cf4045b",
+      "export_sha256": "6b470fefb30e8cdbc2ef3a78cb2c98aa66fe1ec7205b72894823c188c4a7f4aa"
+    },
+    {
+      "file": "runtime/native_dsh/verify-per-file-locks.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "a5dc91e1acce0cdd34d18d4e42d2e62d01c15864f6370691c0d9fc8c0ff53b6d",
+      "export_sha256": "3589db0e74dc6fe1914493acada504de46f882f52ad4b657df30c5ba314206f5"
+    },
+    {
+      "file": "runtime/native_dsh/verify-file-cancellation.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "34df8df1f1cb3a6825054174b8d23e725fcf7ca9a4a41cce8d97c726d15d0167",
+      "export_sha256": "d913b3f158ac7a65d4508276682f1fff1a60f5ac3216520e5c3da76ea9cfe85b"
+    },
+    {
+      "file": "runtime/native_dsh/verify-computer-lifecycle.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "a0b157baa32dd8cb8adf9606ab9517678767f132aa76bd921a69f847d1f0a87e",
+      "export_sha256": "3f014a0abff867be87a9443efbba8b66204cd5984ae830f0bede4be967155723"
+    },
+    {
+      "file": "runtime/native_dsh/package.json",
+      "origin": "deployment extension",
+      "source_sha256": "30171e8c9e0ee21562dc11367ea00d71f0c7387846dd15f1c0006bb34070dad0",
+      "export_sha256": "30171e8c9e0ee21562dc11367ea00d71f0c7387846dd15f1c0006bb34070dad0"
+    },
+    {
+      "file": "runtime/native_dsh/package-lock.json",
+      "origin": "deployment extension",
+      "source_sha256": "f96ba88a59df53501ffe80fe3577398691c46a7f550c66eeadddbdd5dd843af9",
+      "export_sha256": "f96ba88a59df53501ffe80fe3577398691c46a7f550c66eeadddbdd5dd843af9"
+    },
+    {
+      "file": "runtime/native_dsh/digital-life/plugin.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "a66c35455c21d3cb3c422ef4ee587bccd6d9774cd21e67e89a585741a1a80e4f",
+      "export_sha256": "ddea5f5500e9e0c1b5936405c4cdf1c50966cf4496f6608d242427715a7a6d69"
+    },
+    {
+      "file": "runtime/native_dsh/digital-life/store.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "8f8eeed96b37941464a7de60abccd801270ecba0a4d7c154430347aa017cbd29",
+      "export_sha256": "4e3ac4065a56d65e9fb581b29ec6111cbdee4ead19c6a0cb69402ab6998b17c0"
+    },
+    {
+      "file": "runtime/native_dsh/digital-life/attention.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "08772362199bba5fb99d95eb0552f7b4fad797856e409844baafc55f3d871cf9",
+      "export_sha256": "08772362199bba5fb99d95eb0552f7b4fad797856e409844baafc55f3d871cf9"
+    },
+    {
+      "file": "runtime/native_dsh/digital-life/resident.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "28657528053f1b4250e55e87f34ae902cbf3474cda4082767e33d6793b4f5323",
+      "export_sha256": "924fb29c5a05000b0c85f42d4cfc1d904920c95ff7967ab30945e18276205c04"
+    },
+    {
+      "file": "runtime/native_dsh/digital-life/state-board.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "31b40cea2ad4b4915197eab9884f2a0d0e9e9512bf86b1a8ca9058ca866b3c24",
+      "export_sha256": "06fd3ab6e63a208c1af273224073cbb0659a3729bd3a213fd27f6eb9bee6bd04"
+    },
+    {
+      "file": "runtime/native_dsh/digital-life/state-board-model.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "4efe6c9a8d68638a38942655765b0bd1d85bd5ee72b7530457b2ed8bef0034e4",
+      "export_sha256": "13612f989e7ed08d75c33121c3ed3b13581a9c70ac368c0e6360ad22b4d9fd58"
+    },
+    {
+      "file": "runtime/native_dsh/digital-life/intention.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "388c5a4971504955e600bcd10f7057399b8be62249895224dfc676a2a0c0d52a",
+      "export_sha256": "19f8298cff375f5dc7c7cef82605d41c7081e24846002ccf7f246af9ec08af87"
+    },
+    {
+      "file": "runtime/native_dsh/digital-life/codex-advisor.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "da4aade0c205388b06d8c41e72ec6f717ac7d0660df95c0c0ee0565e904e24f4",
+      "export_sha256": "897c6929bd4f9a592d51054ab2d1e4130ab837245736bb4f2709a8984d15d90f"
+    },
+    {
+      "file": "runtime/native_dsh/digital-life/deployment-admission.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "b229edcd05289602890c7adf2d51ddbb1d2cf7fe3fd0982fd2bb71ffbe69bbf3",
+      "export_sha256": "4210564b542affa668a017ae5184d5b036c75240fa0cc094dd195e28f302e769"
+    },
+    {
+      "file": "runtime/native_dsh/digital-life/store.test.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "03721af7a3cc89247da5a738fd77f03396fac24975a73bf70ab485931bd140ed",
+      "export_sha256": "1bd857650a1cd089bf230ffa1c7d43eeb4339ca910870b5dbfdc7db241a138e8"
+    },
+    {
+      "file": "runtime/native_dsh/digital-life/resident.test.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "086667e606a4408404dd8236a0921b370dce452d621eeee1ca7a3199b53e4e8c",
+      "export_sha256": "086667e606a4408404dd8236a0921b370dce452d621eeee1ca7a3199b53e4e8c"
+    },
+    {
+      "file": "runtime/native_dsh/digital-life/state-board-model.test.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "ffd6855cde977ab03ab14bd213ba94f4151efe6692585858d73a13989e0608a9",
+      "export_sha256": "3aa52cbf53490e7842037ce265f87059d40083b9c90595b5614509498e2bc425"
+    },
+    {
+      "file": "runtime/native_dsh/digital-life/codex-advisor.test.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "ec591574a2bb0ab7059eaf93d525d5c6fe6334c3722ee4e5927f073fc97c6736",
+      "export_sha256": "a7a950af1b5ebebf0de13ac8c210c20a836364fdf51515e4a768c11897e8fab5"
+    },
+    {
+      "file": "runtime/native_dsh/digital-life/deployment-admission.test.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "745d363e98e13da2fae656d98c35564e6bc532358d540d9550ef34a37aa9c350",
+      "export_sha256": "745d363e98e13da2fae656d98c35564e6bc532358d540d9550ef34a37aa9c350"
+    },
+    {
+      "file": "runtime/native_dsh/digital-life/verify-resident.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "7f73092abb909ed84041f6a56b7a3a5db39408cd016bfb203d0fc06a0d5746a7",
+      "export_sha256": "c7402fbded7aafe6eddd8da408f92a7fda5e5087251832a479bf00d5aa1f4f68"
+    },
+    {
+      "file": "runtime/native_dsh/digital-life/verify-intention.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "79848b422b012da72b5d13d3c656efc5aa2bf0180ece84b86874339634c0766c",
+      "export_sha256": "9729e4217097af9c4bfcd87578894f3f710a19cfc9da3b9f74c016991b83febc"
+    },
+    {
+      "file": "runtime/native_dsh/digital-life/verify-state-board.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "3894c8b6ba2d18bd7e027d35cf1c4b89c4995d26508a4f651f7cc1dfe4d9ced1",
+      "export_sha256": "06a43bba6899d573d87a9bf47b6295a8847fb96b772813739f03f02b98a4278e"
+    },
+    {
+      "file": "runtime/native_dsh/private-vault/crypto.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "f2964ab87bccbaf60cb443c028f738a0a02f46d1591a94fa31ac3dbd41c9b10b",
+      "export_sha256": "bffe8236e52596fb043c9d7acc5ad7e545b2c952353dddb24813f7b1c34290d3"
+    },
+    {
+      "file": "runtime/native_dsh/private-vault/store.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "db91ab788030a66d330ec93bad700358a53fd8ba0dfa802b9999c022cbd390fa",
+      "export_sha256": "db91ab788030a66d330ec93bad700358a53fd8ba0dfa802b9999c022cbd390fa"
+    },
+    {
+      "file": "runtime/native_dsh/private-vault/capability.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "31b37d36b354264978963500e4608cdd496246ca0234f3c5a4aa3bb9f7fb39da",
+      "export_sha256": "1b7ca1d0c94afd405fe83cd7eaeb019c66be2b6308b6d65933c37c030f95e5c8"
+    },
+    {
+      "file": "runtime/native_dsh/private-vault/session-privacy.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "3b78e1c03d522c343b607974e1e094f752ca4865f713b48955e9056473c0f2e2",
+      "export_sha256": "44e6dc88a0640bb85c722c1ad678a8b95322581ee5de0f52277dc6f2f49a7fca"
+    },
+    {
+      "file": "runtime/native_dsh/private-vault/verify.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "edce183837ffe61549a6c7586912e10dce523a15fd5da8ffd3ece3f1ee3ebf26",
+      "export_sha256": "2d88a805b1ef3620b47ce22eaf9acdc2e168640b34ea2416e12b78a471213f26"
+    },
+    {
+      "file": "runtime/native_dsh/capabilities/bus.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "37ea958aef2a7ae34d27f6763a65d7431a4d4fc040f48acd969434fe1f967f13",
+      "export_sha256": "22750850226bcf46b05d8c498ac27d2af2e3275981f01a027aab5acb5a37153b"
+    },
+    {
+      "file": "runtime/native_dsh/capabilities/profiles.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "44b5caa6274c4aae945879aaa2b920002c2fb5817ce422e9338e554510904471",
+      "export_sha256": "a1bc6ce18625b1f4389f720b258ef54e4d781281f4c7439cef531e71b359e3d9"
+    },
+    {
+      "file": "runtime/native_dsh/capabilities/worker.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "8ae36c445ef9337e6562f21bbd391b0cf859eaf74b77903c8671fffabe638683",
+      "export_sha256": "d434ad593c438b19dfcb5543ba7580e85dfe931276a976271cb2a85845067979"
+    },
+    {
+      "file": "runtime/native_dsh/capabilities/isolation.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "ec749f91c3c12401e016098cb69ec264917ee6facc4724c9226a13832b40f201",
+      "export_sha256": "c02129d40f5b7d50c09db4917819b957c16e66193a47bb0d4d3816098844c60a"
+    },
+    {
+      "file": "runtime/native_dsh/capabilities/credentials.py",
+      "origin": "deployment extension",
+      "source_sha256": "c7fb61b0efeccd55ff941f1fe83c46d714b5b21216f0b5525b034cec572f83d7",
+      "export_sha256": "85f0cc8c53480d62bf1be8fbfda6e620640f2060fefb3c58b8a7befc915edaa3"
+    },
+    {
+      "file": "runtime/native_dsh/capabilities/job.py",
+      "origin": "deployment extension",
+      "source_sha256": "2eefb934e4bf04507f48bd899b9d099ced1a13ebfbc1b9ed6d802450ca2da04b",
+      "export_sha256": "2eefb934e4bf04507f48bd899b9d099ced1a13ebfbc1b9ed6d802450ca2da04b"
+    },
+    {
+      "file": "runtime/native_dsh/capabilities/mcp-ref.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "0ce1b15856de4d02edb7d2edd0854ce1e589bba456298b1678bb09ae5b35eb16",
+      "export_sha256": "393242885df3ea965421875ae0062c71a75fffc5091216c5538fe41e87ebf4db"
+    },
+    {
+      "file": "runtime/native_dsh/capabilities/read-policy.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "705ee54be6b75a7fdbf15980a5329c8426b3967b87a5ea7bc989ea6113e34cac",
+      "export_sha256": "705ee54be6b75a7fdbf15980a5329c8426b3967b87a5ea7bc989ea6113e34cac"
+    },
+    {
+      "file": "runtime/native_dsh/capabilities/read-policy.test.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "da9e0664880b5b1664baca79b77da0fbd925edff8d7124f355bf2d112057c18c",
+      "export_sha256": "da9e0664880b5b1664baca79b77da0fbd925edff8d7124f355bf2d112057c18c"
+    },
+    {
+      "file": "runtime/native_dsh/capabilities/fixture-mcp.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "a2ba8a372a9125e6620fec4f0a62e449164f9be8a5d5f10f751dacfb9d6eedf2",
+      "export_sha256": "a2ba8a372a9125e6620fec4f0a62e449164f9be8a5d5f10f751dacfb9d6eedf2"
+    },
+    {
+      "file": "runtime/native_dsh/capabilities/verify.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "8b8cb3917361647e1b94c0a487c722b0341b7035d12ec5ceed775a161f712b77",
+      "export_sha256": "806eef353cd776fc00f4ac2d7abd0ce5a525b16cb9032de650c84b95253d6ff9"
+    },
+    {
+      "file": "runtime/native_dsh/capabilities/verify-read-access.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "ec2ddfe864a4a37ce421471e8e5f19f2205c790310055eefbf4546ce44ff6ccc",
+      "export_sha256": "1411d768b6581d679be457b8ec92ae9b560909046f8975c2435e12ab92fc1b78"
+    },
+    {
+      "file": "runtime/native_dsh/capabilities/examples/hello/package.json",
+      "origin": "deployment extension",
+      "source_sha256": "e27f1f4f1b71ee5cfe053c825d42d1ca333a48228d18bffb6ddbd757f8baa5f3",
+      "export_sha256": "d4830146979af13f7a7e82c72ad5cddc5653b1a933cc6e0230ff389b4cba5e91"
+    },
+    {
+      "file": "runtime/native_dsh/capabilities/examples/hello/cordis.patch.yml",
+      "origin": "deployment extension",
+      "source_sha256": "38b94e914c55d48e6862cfe61480b68b6895fc8d04748e59495126217983b51d",
+      "export_sha256": "38b94e914c55d48e6862cfe61480b68b6895fc8d04748e59495126217983b51d"
+    },
+    {
+      "file": "runtime/native_dsh/capabilities/examples/hello/plugin.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "e30fcbeee589d0ad1a52c7948ad53271baf0e4f78a0b2a66089e8d8051b75847",
+      "export_sha256": "cc951eeebc68ade20abec6ce5d4ec68ec23667df9bec4085aa41520e8304559f"
+    },
+    {
+      "file": "runtime/native_dsh/capabilities/examples/mcp/package.json",
+      "origin": "deployment extension",
+      "source_sha256": "7c5f441632a19578869a3cb45eb82efe2ea2165c008cafa200dd9f83d9528ce7",
+      "export_sha256": "0a00264e45627169d7d038fd4f007813a59b1e58501f47c4ddebef0f727014d0"
+    },
+    {
+      "file": "runtime/native_dsh/capabilities/examples/mcp/cordis.patch.yml",
+      "origin": "deployment extension",
+      "source_sha256": "4b39c779ad760d355cc43a09a5d3bee99135031ca962ceb3832921831c6af739",
+      "export_sha256": "22be7ea9e3e2ffe9c947b569e3c6916a9df2b544e4a2e58be41fe8c2dad6e3a9"
+    },
+    {
+      "file": "runtime/native_dsh/recovery/main.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "b1b701ed8e9511a62fcc6836f7e2dd58b1305b537e4d042d1597fa3bec2636a9",
+      "export_sha256": "a1dbbcc34156e8e16a0e3cd38b51bf76661d229c166935d7172fdd7b0e40e860"
+    },
+    {
+      "file": "runtime/native_dsh/recovery/diagnostics.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "ab0b6b3365f9d6799c9c129a6e6e89cc444e4a12adac1aa5cb88280e22d3b0c5",
+      "export_sha256": "95221ec82f8756d6df0126bfe404a069ca2d90b6dd17ccd9c34693425ea93dd6"
+    },
+    {
+      "file": "runtime/native_dsh/recovery/tool-protocol.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "d745cca1f83819923f38b236cc88d74019323bcedfb83596e92f263e60a484c2",
+      "export_sha256": "d745cca1f83819923f38b236cc88d74019323bcedfb83596e92f263e60a484c2"
+    },
+    {
+      "file": "runtime/long_term_memory/engine.py",
+      "origin": "deployment extension",
+      "source_sha256": "dbb93d09ec94b2c98e977fa4ad456668fc280df89a174213aaa1422b78cc8ab2",
+      "export_sha256": "26123cdee99c0b0aed017b345d122df089c61010f30287b16f95aa9e275b62bf"
+    },
+    {
+      "file": "runtime/long_term_memory/source_reader.py",
+      "origin": "deployment extension",
+      "source_sha256": "c8e54a3a8167b991e19874d93dc23ae484def3d7cd080eca9cdcbd119b8d342a",
+      "export_sha256": "1856b703bd4ab2c129c176961cd5c9f019b45831c607c12e41ebfad8e16077f0"
+    },
+    {
+      "file": "runtime/long_term_memory/qwen.py",
+      "origin": "deployment extension",
+      "source_sha256": "3322eaf11ea7b1d15936fe9be1e4c59d07014cae379b7f9312a56f885eeed0a4",
+      "export_sha256": "3322eaf11ea7b1d15936fe9be1e4c59d07014cae379b7f9312a56f885eeed0a4"
+    },
+    {
+      "file": "runtime/long_term_memory/qwen_legacy.py",
+      "origin": "deployment extension",
+      "source_sha256": "b690a922275cf609099e554c771b10925b29021fdd43a32ae81b5f2f19fac29b",
+      "export_sha256": "315f1ef174501de78e9017d3015fa2d67eb34629c72391687c26f4408843cf0d"
+    },
+    {
+      "file": "runtime/long_term_memory/cli.py",
+      "origin": "deployment extension",
+      "source_sha256": "fb81461eef028ebcf30df5168e14cd4129c5fc2894407886580fcecb691e9e56",
+      "export_sha256": "a2ebe70094e2992ccd98a42eaeb205fa864068d90358a7cd405cd43f4efd74f9"
+    },
+    {
+      "file": "runtime/long_term_memory/test_memory.py",
+      "origin": "deployment extension",
+      "source_sha256": "e686406f6310ce0d0645ad7a34d539670b5c52f375f18b5b3c6ca70335b2630e",
+      "export_sha256": "e108df40fc296d7b70e7d849946ad3d1f3578c41799f79431d5744e0a59633ac"
+    },
+    {
+      "file": "runtime/long_term_memory/test_qwen.py",
+      "origin": "deployment extension",
+      "source_sha256": "09daa3469de3690f2d4738ee9b03b39f3a0449da0cb0bc26c5cf07840ef4c0a6",
+      "export_sha256": "09daa3469de3690f2d4738ee9b03b39f3a0449da0cb0bc26c5cf07840ef4c0a6"
+    },
+    {
+      "file": "runtime/long_term_memory/bundle/plugin.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "86af1999478ca4a7a46bc9a5ab1a0956f27050de6a6fbb08d0ebc95ade326837",
+      "export_sha256": "22c3607d92f31631002fc3b6bcc3c7caf97d850d5bc8fa0a475decac1039f2e3"
+    },
+    {
+      "file": "runtime/long_term_memory/bundle/package.json",
+      "origin": "deployment extension",
+      "source_sha256": "314bd350d80217be923979187dc4d387dcfca2bbed1869567eb879db21c53869",
+      "export_sha256": "145cd207bad63147edfff7f8f3e1c5105047a5b9b56dc8cd4dc84d97c8dd4e5e"
+    },
+    {
+      "file": "runtime/long_term_memory/bundle/cordis.patch.yml",
+      "origin": "deployment extension",
+      "source_sha256": "75c2bbcc8427e9d33c57408f878fd9362510c6ed393f0ff5631ba02fde4db3d1",
+      "export_sha256": "9f29feac5db2e37c19e743ba71c99e9a3c593465c693c24bd2064d1a993610a3"
+    },
+    {
+      "file": "runtime/browser/server.py",
+      "origin": "deployment extension",
+      "source_sha256": "2ac460ca3b6e0a904c605bf7e56411e2703f80a7ce3d46d299de8a6225d69b78",
+      "export_sha256": "b5dbc624541e4da1c277a3364d3c9e7614c16d2175408e81514bf72249826c3c"
+    },
+    {
+      "file": "runtime/browser/browser_control.py",
+      "origin": "deployment extension",
+      "source_sha256": "72502d335acbbb5341f44e921814d24618124598819b11886829473cbd8d73c2",
+      "export_sha256": "f1809dfcd57a67a18690074a26ecbc5887308cfb6d644048c9ad09c9012d2e9e"
+    },
+    {
+      "file": "runtime/browser/requirements.txt",
+      "origin": "deployment extension",
+      "source_sha256": "f5db433df9b6b55e0eebd38bcba461ff961cff52a6452bb505873c0f66f30783",
+      "export_sha256": "f5db433df9b6b55e0eebd38bcba461ff961cff52a6452bb505873c0f66f30783"
+    },
+    {
+      "file": "runtime/bluesky/bundle/client.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "6f0c9fb9428a5c6bf8d0a00c46de2795f48a75ff72b7763f3b5968f7d88e274d",
+      "export_sha256": "86cc3d89fdf2ecb3368a8e6f5b52f9301905eb4677dfd2404104f26f86d80343"
+    },
+    {
+      "file": "runtime/bluesky/bundle/extended.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "72c01589765a7d84ef2b662203861a9bb73d5f2920f66891f97474fba7ff0c92",
+      "export_sha256": "72c01589765a7d84ef2b662203861a9bb73d5f2920f66891f97474fba7ff0c92"
+    },
+    {
+      "file": "runtime/bluesky/bundle/search.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "4673599c599d67d911942657fea59d4967928b30858d22079052b7048f4a2850",
+      "export_sha256": "4673599c599d67d911942657fea59d4967928b30858d22079052b7048f4a2850"
+    },
+    {
+      "file": "runtime/bluesky/bundle/preview.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "e781fd6c8de23083685f82c4ff80ff4b787f894ff17d3d64b0718ec66bdb6d7c",
+      "export_sha256": "e781fd6c8de23083685f82c4ff80ff4b787f894ff17d3d64b0718ec66bdb6d7c"
+    },
+    {
+      "file": "runtime/bluesky/bundle/media.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "b952763c0d2581fc86d846a8faf49c773ff4081687946750cdc38030239ad42b",
+      "export_sha256": "b952763c0d2581fc86d846a8faf49c773ff4081687946750cdc38030239ad42b"
+    },
+    {
+      "file": "runtime/bluesky/bundle/thread-pages.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "014dc4fadad57eb633e5f4e0d4343ce8aae0fd98dc4e3988ce3b3c7bda49cff0",
+      "export_sha256": "014dc4fadad57eb633e5f4e0d4343ce8aae0fd98dc4e3988ce3b3c7bda49cff0"
+    },
+    {
+      "file": "runtime/bluesky/bundle/stream.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "97d31d77c6e65b0b12df2d707f3f5bb596e96a6f2960ad6ef067e0a4d6cdea79",
+      "export_sha256": "97d31d77c6e65b0b12df2d707f3f5bb596e96a6f2960ad6ef067e0a4d6cdea79"
+    },
+    {
+      "file": "runtime/bluesky/bundle/assets.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "3b1002c52be4b676fc6e73992472df1fa79304216c8c020e83799edaac329293",
+      "export_sha256": "c589e3256e152a3077b9bbf2122f13b1ca2f35068d9f7bfa212bb9cbfa701106"
+    },
+    {
+      "file": "runtime/bluesky/bundle/plugin.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "b64f1f4a88fdfa300e91ef172192b87d7e0da0374b3813b2d3b8e1a359e91769",
+      "export_sha256": "670a0c50d92d6d5be5201bcc184980661dc32263f7be69c7546b1dff85d4e106"
+    },
+    {
+      "file": "runtime/bluesky/bundle/package.json",
+      "origin": "deployment extension",
+      "source_sha256": "bc564ddfc9a184139bf1ff54141495dc612741213be9ee6790f8dd9c557605f1",
+      "export_sha256": "2ef1fd48ff85b1806cf2086d29deb0172cba6e3968641d6f1acdd2d242bb843c"
+    },
+    {
+      "file": "runtime/bluesky/bundle/cordis.patch.yml",
+      "origin": "deployment extension",
+      "source_sha256": "f53d597fb040420db4120d38e4ec12aa64341066b8e4a7b7622e7f45e14ec8f5",
+      "export_sha256": "bef1b32ccf84eb93a9a7bc5f6544c69647067d4454aa81f1549fdae66c017fad"
+    },
+    {
+      "file": "runtime/bluesky/bundle/extended.test.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "e14c2ebfad4d556946e06a3c87efe8a13905f73576bef06c67fe09b69fadb264",
+      "export_sha256": "30fbbcd1d73f17ed83ee532f6e66ca2c6b7075b8f13336d2ef1463081262b0fb"
+    },
+    {
+      "file": "runtime/file_tools.py",
+      "origin": "deployment extension",
+      "source_sha256": "3b9d40536eebcdbb4fc0b93c4fb99e97ea79a4a3099275ae16a700de56eae111",
+      "export_sha256": "267696a45e7badbb89171c01dabaa8309856ec8ad58d4acbabe328acd3333402"
+    },
+    {
+      "file": "runtime/native_bridge.py",
+      "origin": "deployment extension",
+      "source_sha256": "6e7d5b3daa7c7dd26f26f7b08db01aef1252640ad552b22a0c22b255f562990c",
+      "export_sha256": "d782445ed33c4991b6200b3635d48c27f296384b3c1ebfe797f9a185d6d59e8c"
+    },
+    {
+      "file": "runtime/windows_terminal.py",
+      "origin": "deployment extension",
+      "source_sha256": "4ea50e923559358b4a079ab105494e351e19432d537b0739ab99441d7da0ab39",
+      "export_sha256": "26f73af7f17b4fc560be45837c38b8ee6a281fa82d64f5d2a1312bc51937dd08"
+    },
+    {
+      "file": "tools/web-search/search.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "f091162b090bf5f2361be055eadb01d03cb3eb34121aa0a08dc479dc17167b72",
+      "export_sha256": "87a12a7afb12f4f5d9ca9e1035b9115bb62f7602cfbf1233b441cd44bd6e34e6"
+    },
+    {
+      "file": "tools/web-search/verify.mjs",
+      "origin": "deployment extension",
+      "source_sha256": "4c70446ac1a733025006db7df003e63f1eac826bb5aaa85733f08007b08aae45",
+      "export_sha256": "4c70446ac1a733025006db7df003e63f1eac826bb5aaa85733f08007b08aae45"
+    },
+    {
+      "file": "tools/web-search/policy.json",
+      "origin": "deployment extension",
+      "source_sha256": "04b201cf3d6cbcfaff638e4c0eec968186726251a3e6e40f0b650e71f44a863f",
+      "export_sha256": "04b201cf3d6cbcfaff638e4c0eec968186726251a3e6e40f0b650e71f44a863f"
+    },
+    {
+      "file": "patches/deepseek-harness-desktop-multi-window.patch",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "3432440b6613a04bb62278a960533ddc5681c97dc5b916f67175feb2d26ba926"
+    },
+    {
+      "file": "runtime/browser/config.json",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "7486f2fcfbf88bc355d8356c713735cf9e0451521d72727a73435758bff39a09"
+    },
+    {
+      "file": "runtime/budget_guard/config.json",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "0fffb28ef01ab610d1a69d771fcf7b74f76a5e36afa3774e75ab1a007ea3bef7"
+    },
+    {
+      "file": "runtime/dots_bridge/bundle/bridge.mjs",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "cc8c2692446a0a525e7ca75cba6bf5b9cb4b1a0dedfb4d5af055b03b31ddd9ce"
+    },
+    {
+      "file": "runtime/dots_bridge/bundle/bridge.test.mjs",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "148a2e30f542122b8cf662b1e43001d7b5eee2390daaa0875dc9289de6a7a11b"
+    },
+    {
+      "file": "runtime/dots_bridge/bundle/cordis.patch.yml",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "d17c7a47eab4f43cbaf32ae98ee53ea7e11f791791161f5535c3df2368679f11"
+    },
+    {
+      "file": "runtime/dots_bridge/bundle/focus-editor.ps1",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "67cfef646c7e8a5109a5eac44664013bf67ac40e87a4e6e270e341ebb3d1f74c"
+    },
+    {
+      "file": "runtime/dots_bridge/bundle/package.json",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "a3b6c507d7d948c85fc9aada7ee50bada26f60a05c5cff30e628d84469189909"
+    },
+    {
+      "file": "runtime/dots_bridge/bundle/plugin.mjs",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "bcb8a779fbbddee3729eeb0546adff2cc95e39eb5af895ef940ac39f4f9845eb"
+    },
+    {
+      "file": "runtime/dots_bridge/bundle/policy.json",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "64a71bf9d6e29c3b3d31b8e0662acfb5771f5e40e96219e1c13d6eeda333a328"
+    },
+    {
+      "file": "runtime/dots_bridge/bundle/protocol.mjs",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "552ec3230fc4d04d5959d8ba4faeb16857a27660f3443ed36a8b18cbfd9935eb"
+    },
+    {
+      "file": "runtime/dots_bridge/bundle/slack-ui.mjs",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "b7f10768cbc3e01a8441ab15b855868f1eff6d5c2e0f14e46a46bb389658d5dc"
+    },
+    {
+      "file": "runtime/dots_bridge/bundle/slack.mjs",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "e816d5ffb41ec13411ef4515556af8f3d6162f8e319834de72226244e583522c"
+    },
+    {
+      "file": "runtime/dots_bridge/bundle/store.mjs",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "f6c3f63b7c6be49e374051c09da250ec9b91116b1a21284f0cdd2926be2690c3"
+    },
+    {
+      "file": "runtime/long_term_memory/config.json",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "eb8db168a5b5de5136f319ee76ef0a9b441b217aa0e4b5c9bb9eecf2d086a12b"
+    },
+    {
+      "file": "runtime/long_term_memory/import_design.py",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "52d8861f0c17bbfe708ce9046da4b23f7155f7e54a5d097fb991141fbd952218"
+    },
+    {
+      "file": "runtime/long_term_memory/sources.json",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "f74361f3b4ae24f26f3397739d4e5c16c73b53534162affdb53c0877f57f3845"
+    },
+    {
+      "file": "runtime/native_dsh/host-cordis.yml",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "runtime/native_dsh/native-host.mjs",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "96dbdd835bf6ef08c8ec0acc1cdc19f411140da848edee27d4aaf441171ab253"
+    },
+    {
+      "file": "runtime/time_host/packages.mjs",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "5dc70a632e3ed142a76370192db58639b74cc10f1f448123542ab8b2afe408f2"
+    },
+    {
+      "file": "runtime/xiaohongshu/aliyun_ocr_client.py",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "ac5bee92c8bc2c1a8d0e1cf12f98fb02243a12a54a07333172ba1535261364b6"
+    },
+    {
+      "file": "runtime/xiaohongshu/backend.py",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "f1a2dafa05445ce1705da6a530f8b14eab91bd6882668af4f4b24c0dfc96ddad"
+    },
+    {
+      "file": "runtime/xiaohongshu/cdp_scope.py",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "cfbfc9a61c3335499328ec162fc271f9bb4177d1febea1cbab699a0fd6f64f77"
+    },
+    {
+      "file": "runtime/xiaohongshu/config.json",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "e805fb281efc07e2d023230f77aaf418b87450e7166f010646e63646f17f7e1c"
+    },
+    {
+      "file": "runtime/xiaohongshu/diandian.js",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "80137526dfe48337a188137ff43dd6ea30349f5da7cdc04a43b6e14484258666"
+    },
+    {
+      "file": "runtime/xiaohongshu/diandian.py",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "7a52f627e93d9fa4ef365d3e6b480c3862c5a7af63dd6fabf07b625ca421f72f"
+    },
+    {
+      "file": "runtime/xiaohongshu/export_article.py",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "7e3bb483945eca9e5684152b5afb1bef6f26e64108cbf837d45125babbc62bb9"
+    },
+    {
+      "file": "runtime/xiaohongshu/export_jobs.py",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "e453722fe247296f13cb73aefd694c5e7b30515dbb524352113e4bbd777f5b4c"
+    },
+    {
+      "file": "runtime/xiaohongshu/general_ocr.py",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "ef93583132f10cf30a06dcd3970ccebcf11d603048f2c98fe80f8f038e33f961"
+    },
+    {
+      "file": "runtime/xiaohongshu/long_article_ocr.py",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "5c3de669729a609ddb4981190716169643b35442dcd5c68af79aaa171d1cb388"
+    },
+    {
+      "file": "runtime/xiaohongshu/ocr_layouts.py",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "ffe2a090145790572023f72562805e52df4130ecd23598ad5f2eed2a5f0d943d"
+    },
+    {
+      "file": "runtime/xiaohongshu/private_state.py",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "0d0a6b93bd60706bdaf954e40a6dd4a87024f4065f0b475b7397547fcf8372e1"
+    },
+    {
+      "file": "runtime/xiaohongshu/qwen_ocr_client.py",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "6c83e33cf0b24921f0154db71acfd4435a8099f7435b6630f8b219595edf0665"
+    },
+    {
+      "file": "runtime/xiaohongshu/requirements.txt",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "657cd5b931dd4f9762d7ba321827b54dedddb062219f3d9d2e33c2c540766f15"
+    },
+    {
+      "file": "runtime/xiaohongshu/server.py",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "df2a62ceb71198467a24dfa9cac3cad3eed2a9125ae0494fc41fe1872bca067c"
+    },
+    {
+      "file": "runtime/xiaohongshu/site.js",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "01e83bc6e0ac25a2fe515e46972567e1100986521b9b4192183ec8b2465fef8b"
+    },
+    {
+      "file": "runtime/xiaohongshu/test_general_ocr.py",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "d9ab8471fa146264fbbefcd0c25ce0f077f63b9a4fc6e6ba113639377efdaf3b"
+    },
+    {
+      "file": "runtime/xiaohongshu/test_qwen_ocr.py",
+      "origin": "generalized deployment extension or attributed upstream patch",
+      "export_sha256": "f05429c691e9b1484ef2b71058a93fba7e2755fba49e03b52f5caac6fa2086d6"
+    }
+  ]
+}

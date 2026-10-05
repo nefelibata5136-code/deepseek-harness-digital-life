@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "provider": "deepseek-official",
+  "model": "deepseek-flash",
+  "daily_limit_nano_cny": 50000000000,
+  "warning_nano_cny": 40000000000,
+  "conservative_nano_cny": 45000000000,
+  "max_output_tokens": 65536,
+  "conservative_output_tokens": 2048,
+  "min_output_tokens": 256,
+  "input_bound_tokens": 1048576,
+  "peak_nano_cny_per_token": {
+    "miss": 2000,
+    "hit": 40,
+    "output": 8000
+  },
+  "offpeak_nano_cny_per_token": {
+    "miss": 1000,
+    "hit": 20,
+    "output": 4000
+  },
+  "price_source": "https://api-docs.deepseek.com/zh-cn/quick_start/pricing/",
+  "price_checked_at": "2026-10-04",
+  "price_valid_through": "2026-10-11",
+  "bound_basis": "Official Flash 1M context capacity; round up to 2^20. Reserve full capacity as cache miss plus capped output, independent of tokenizer estimates. Requires provider enforcement of published capacity and max_tokens.",
+  "stop_on_unknown_usage": false
+}

@@ -1,0 +1,7 @@
+{
+  "timeoutMs": 15000,
+  "attempts": 2,
+  "retryDelayMs": 600,
+  "defaultResults": 8,
+  "pageChars": 6000
+}

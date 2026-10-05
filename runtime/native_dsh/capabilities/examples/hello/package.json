@@ -1,0 +1,8 @@
+{
+  "name": "persona-capability-hello",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local, side-effect-free Cordis capability example",
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
+}

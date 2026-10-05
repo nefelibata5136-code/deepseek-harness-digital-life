@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "type": "module",
+  "dsh": {
+    "profile": {
+      "bundles": [
+        "@deepseek-ai/dsh-sdk-minimal",
+        "@deepseek-ai/dsh-subagent-codex"
+      ]
+    }
+  }
+}

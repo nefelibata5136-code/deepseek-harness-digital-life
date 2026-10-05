@@ -1,0 +1,17 @@
+{
+  "name": "deepseek-harness-digital-life",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "setup": "node scripts/configure.mjs",
+    "start": "node scripts/start.mjs",
+    "test": "node scripts/test.mjs",
+    "audit": "python scripts/audit.py",
+    "smoke": "node scripts/smoke.mjs"
+  }
+}

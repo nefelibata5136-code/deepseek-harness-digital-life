@@ -1,0 +1,72 @@
+{
+  "runtime/dots_bridge/bundle/bridge.test.mjs": {
+    "sha256": "148a2e30f542122b8cf662b1e43001d7b5eee2390daaa0875dc9289de6a7a11b",
+    "rules": [
+      "provider-key"
+    ],
+    "reason": "Reviewed deterministic offline placeholder or deliberately synthetic credential-rejection fixture; never used for authentication."
+  },
+  "runtime/key_output_guard/verify.mjs": {
+    "sha256": "d4cd1960286833a240cc2fc117185a76ccf1e3961e061514076cac0fd255fec2",
+    "rules": [
+      "provider-key"
+    ],
+    "reason": "Reviewed deterministic offline placeholder or deliberately synthetic credential-rejection fixture; never used for authentication."
+  },
+  "runtime/native_dsh/verify-computer-lifecycle.mjs": {
+    "sha256": "3f014a0abff867be87a9443efbba8b66204cd5984ae830f0bede4be967155723",
+    "rules": [
+      "credential-assignment"
+    ],
+    "reason": "Reviewed deterministic offline placeholder or deliberately synthetic credential-rejection fixture; never used for authentication."
+  },
+  "runtime/native_dsh/verify-parallel-conversations.mjs": {
+    "sha256": "6b470fefb30e8cdbc2ef3a78cb2c98aa66fe1ec7205b72894823c188c4a7f4aa",
+    "rules": [
+      "credential-assignment"
+    ],
+    "reason": "Reviewed deterministic offline placeholder or deliberately synthetic credential-rejection fixture; never used for authentication."
+  },
+  "runtime/native_dsh/capabilities/verify-read-access.mjs": {
+    "sha256": "1411d768b6581d679be457b8ec92ae9b560909046f8975c2435e12ab92fc1b78",
+    "rules": [
+      "credential-assignment"
+    ],
+    "reason": "Reviewed deterministic offline placeholder or deliberately synthetic credential-rejection fixture; never used for authentication."
+  },
+  "runtime/native_dsh/capabilities/verify.mjs": {
+    "sha256": "806eef353cd776fc00f4ac2d7abd0ce5a525b16cb9032de650c84b95253d6ff9",
+    "rules": [
+      "credential-assignment"
+    ],
+    "reason": "Reviewed deterministic offline placeholder or deliberately synthetic credential-rejection fixture; never used for authentication."
+  },
+  "runtime/native_dsh/digital-life/codex-advisor.test.mjs": {
+    "sha256": "a7a950af1b5ebebf0de13ac8c210c20a836364fdf51515e4a768c11897e8fab5",
+    "rules": [
+      "credential-assignment"
+    ],
+    "reason": "Reviewed deterministic offline placeholder or deliberately synthetic credential-rejection fixture; never used for authentication."
+  },
+  "runtime/native_dsh/digital-life/verify-resident.mjs": {
+    "sha256": "c7402fbded7aafe6eddd8da408f92a7fda5e5087251832a479bf00d5aa1f4f68",
+    "rules": [
+      "credential-assignment"
+    ],
+    "reason": "Reviewed deterministic offline placeholder or deliberately synthetic credential-rejection fixture; never used for authentication."
+  },
+  "runtime/self_maintenance/verify-change.mjs": {
+    "sha256": "9df11ead1fa535aa04e3f0772696ff4e84d110684e31127f86128a8e54a31ca1",
+    "rules": [
+      "credential-assignment"
+    ],
+    "reason": "Reviewed deterministic offline placeholder or deliberately synthetic credential-rejection fixture; never used for authentication."
+  },
+  "scripts/smoke.mjs": {
+    "sha256": "dab642c2219cc155837129f4b4482ea6cf5a021d3500383ff40890472ce7a0e0",
+    "rules": [
+      "credential-assignment"
+    ],
+    "reason": "Reviewed deterministic offline placeholder or deliberately synthetic credential-rejection fixture; never used for authentication."
+  }
+}

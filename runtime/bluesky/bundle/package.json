@@ -1,0 +1,8 @@
+{
+  "name": "persona-bluesky",
+  "version": "2.1.2",
+  "private": true,
+  "type": "module",
+  "description": "Bluesky browsing and publishing through Persona's native capability bus",
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
+}

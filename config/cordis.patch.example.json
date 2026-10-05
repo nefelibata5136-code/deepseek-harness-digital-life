@@ -1,0 +1,485 @@
+[
+  {
+    "id": "sdk-app-startup",
+    "disabled": true
+  },
+  {
+    "id": "sdk-jsonrpc-server",
+    "disabled": true
+  },
+  {
+    "id": "persistent-bash",
+    "disabled": true
+  },
+  {
+    "id": "persistent-pwsh",
+    "disabled": true
+  },
+  {
+    "id": "terminal-bash",
+    "disabled": true
+  },
+  {
+    "id": "terminal-pwsh",
+    "disabled": true
+  },
+  {
+    "id": "pty",
+    "disabled": true
+  },
+  {
+    "id": "sandbox",
+    "disabled": false
+  },
+  {
+    "id": "sandbox-policy",
+    "disabled": true
+  },
+  {
+    "id": "subprocess",
+    "disabled": false
+  },
+  {
+    "id": "jobs",
+    "disabled": true
+  },
+  {
+    "id": "llm-retry",
+    "disabled": true
+  },
+  {
+    "id": "subagent-codex",
+    "config": {
+      "providerName": "codex-native",
+      "model": "gpt-6-luna",
+      "permissionMode": "never",
+      "env": {
+        "CODEX_HOME": "@DATA@/advisors/codex-home",
+        "HOME": "@DATA@/advisors/codex-home",
+        "USERPROFILE": "@DATA@/advisors/codex-home"
+      }
+    }
+  },
+  {
+    "id": "session-log-deepseek",
+    "disabled": true
+  },
+  {
+    "id": "plugin-package-inventory-deepseek",
+    "disabled": true
+  },
+  {
+    "id": "deepseek-llm-api-extensions",
+    "disabled": true
+  },
+  {
+    "id": "system-prompt",
+    "config": {
+      "includeHarnessIdentity": false,
+      "includeRuntimeContext": false,
+      "personaPrefix": "",
+      "personaSuffix": ""
+    }
+  },
+  {
+    "id": "tools",
+    "config": {
+      "mode": "native"
+    }
+  },
+  {
+    "id": "llm-deepseek",
+    "config": {
+      "apiKeyEnv": "DEEPSEEK_API_KEY",
+      "baseURL": "https://api.deepseek.com/anthropic",
+      "maxTokens": 65536,
+      "defaultContextWindow": 1000000,
+      "reasoningEffort": "high",
+      "streamIdleTimeoutMs": 120000,
+      "retryPolicy": {
+        "mode": "normal",
+        "maxRetries": 0
+      }
+    }
+  },
+  {
+    "insert": [
+      {
+        "id": "persona-private-vault",
+        "name": "@ROOT@/runtime/native_dsh/private-vault/capability.mjs",
+        "config": {
+          "fullAccess": false,
+          "root": "@DATA@/private-vault"
+        }
+      },
+      {
+        "id": "subagent",
+        "name": "@deepseek-ai/dsh-subagent",
+        "config": {
+          "maxActiveSubagents": 8,
+          "maxDepth": 1
+        }
+      },
+      {
+        "id": "subagent-spawn-in-process",
+        "name": "@deepseek-ai/dsh-subagent-spawn-in-process",
+        "config": {
+          "providerName": "spawn"
+        }
+      },
+      {
+        "id": "tool-subagent-control",
+        "name": "@deepseek-ai/dsh-tool-subagent-control",
+        "config": {}
+      },
+      {
+        "id": "tool-subagent-list-agents",
+        "name": "@deepseek-ai/dsh-tool-subagent-control/list-agents",
+        "config": {}
+      },
+      {
+        "id": "tool-subagent",
+        "name": "@deepseek-ai/dsh-tool-subagent",
+        "config": {
+          "provider": "spawn",
+          "toolName": "subagent",
+          "backgroundMode": "continuable",
+          "maxDepth": 1
+        }
+      },
+      {
+        "id": "tool-subagent-codex",
+        "name": "@deepseek-ai/dsh-tool-subagent",
+        "config": {
+          "provider": "codex",
+          "toolName": "subagent_codex",
+          "backgroundMode": "one-shot",
+          "enableRunInBackground": false,
+          "maxDepth": "provider-managed"
+        }
+      },
+      {
+        "id": "persona-capabilities",
+        "name": "@ROOT@/runtime/native_dsh/capabilities/bus.mjs",
+        "config": {
+          "fullAccess": false,
+          "root": "@DATA@/capability-profiles",
+          "python": "@PYTHON@",
+          "startupTimeoutMs": 20000,
+          "toolTimeoutMs": 30000,
+          "maxOutputBytes": 4194304,
+          "maxTools": 1000
+        }
+      },
+      {
+        "id": "token-meter",
+        "name": "@deepseek-ai/dsh-token-meter",
+        "config": {}
+      },
+      {
+        "id": "persona-compaction",
+        "name": "@ROOT@/runtime/native_dsh/persona-compaction.mjs",
+        "config": {
+          "cacheRoot": "@DATA@/compaction-cache",
+          "maxReplayTokens": 60000,
+          "capsuleMaxTokens": 2048,
+          "maxCapsuleTokens": 200000,
+          "summaryMaxTokens": 4096,
+          "toolExcerptChars": 16000,
+          "timeoutMs": 180000,
+          "policy": {
+            "auto": true,
+            "thresholdRatio": 0.8,
+            "headroomTokens": 65536,
+            "retainRatio": 0.16,
+            "summarizationProvider": "deepseek-official",
+            "summarizationModel": "deepseek-flash",
+            "maxTokens": 4096,
+            "compactionRetries": 1,
+            "maxOverflowRetries": 1
+          }
+        }
+      },
+      {
+        "id": "commands",
+        "name": "@deepseek-ai/dsh-commands",
+        "config": {}
+      },
+      {
+        "id": "command-compact",
+        "name": "@deepseek-ai/dsh-command-compact",
+        "config": {}
+      },
+      {
+        "id": "budget-guard",
+        "name": "@ROOT@/runtime/native_dsh/budget-host.mjs",
+        "config": {
+          "python": "@PYTHON@",
+          "db": "@DATA@/budget.sqlite3"
+        }
+      },
+      {
+        "id": "agent-default-model",
+        "name": "@deepseek-ai/dsh-agent-default-model",
+        "config": {
+          "provider": "deepseek-official",
+          "model": "deepseek-flash"
+        }
+      },
+      {
+        "id": "agent-instructions",
+        "name": "@deepseek-ai/dsh-agent-instructions",
+        "config": {
+          "maxBytes": 65536,
+          "dshHome": "@DATA@/dsh-home",
+          "projectRootMarkers": [
+            "AGENTS.md"
+          ],
+          "instructionFileCandidates": [
+            "AGENTS.md"
+          ],
+          "localInstructionFileCandidates": []
+        }
+      },
+      {
+        "id": "session-query-sqlite",
+        "name": "@deepseek-ai/dsh-session-query-sqlite",
+        "config": {
+          "path": "@DATA@/session-query.sqlite",
+          "openAt": "first-search"
+        }
+      },
+      {
+        "id": "tool-session-query",
+        "name": "@deepseek-ai/dsh-tool-session-query",
+        "config": {
+          "maxSearchResults": 30,
+          "searchTimeoutMs": 30000
+        }
+      },
+      {
+        "id": "persona-bridge",
+        "name": "@ROOT@/runtime/native_dsh/persona-plugin.mjs",
+        "config": {
+          "python": "@PYTHON@",
+          "bridge": "@ROOT@/runtime/native_bridge.py",
+          "base": "@ROOT@",
+          "workspace": "@WORKSPACE@",
+          "core": "@WORKSPACE@/persona-core.md",
+          "history": "@DATA@/history",
+          "legacy": "@DATA@/legacy",
+          "additionalTools": [
+            "mcp__persona_browser__browser_navigate",
+            "mcp__persona_browser__browser_click",
+            "mcp__persona_browser__browser_type",
+            "mcp__persona_browser__browser_get_state",
+            "mcp__persona_browser__browser_screenshot",
+            "mcp__persona_browser__browser_scroll",
+            "mcp__persona_browser__browser_go_back",
+            "mcp__persona_browser__browser_list_tabs",
+            "mcp__persona_browser__browser_switch_tab",
+            "mcp__persona_browser__browser_close_tab",
+            "mcp__persona_browser__browser_read_page",
+            "mcp__persona_browser__browser_status",
+            "cua_driver_native__list_apps",
+            "cua_driver_native__list_windows",
+            "cua_driver_native__get_desktop_state",
+            "cua_driver_native__get_window_state",
+            "cua_driver_native__verify_state",
+            "cua_driver_native__launch_app",
+            "cua_driver_native__bring_to_front",
+            "cua_driver_native__set_window_frame",
+            "cua_driver_native__click",
+            "cua_driver_native__double_click",
+            "cua_driver_native__right_click",
+            "cua_driver_native__drag",
+            "cua_driver_native__move_cursor",
+            "cua_driver_native__scroll",
+            "cua_driver_native__type_text",
+            "cua_driver_native__press_key",
+            "cua_driver_native__hotkey",
+            "cua_driver_native__get_screen_size",
+            "cua_driver_native__get_cursor_position",
+            "cua_driver_native__zoom",
+            "cua_driver_native__check_permissions"
+          ]
+        }
+      },
+      {
+        "id": "persona-browser-mcp",
+        "name": "@deepseek-ai/dsh-mcp-client",
+        "config": {
+          "serverName": "persona_browser",
+          "transport": "stdio",
+          "command": "@PYTHON@",
+          "args": [
+            "-X",
+            "utf8",
+            "@ROOT@/runtime/browser/server.py"
+          ],
+          "toolCallTimeoutMs": 60000,
+          "failOnStartupError": true
+        },
+        "disabled": true
+      },
+      {
+        "id": "workspace-foundation",
+        "name": "@ROOT@/runtime/native_dsh/foundation-host.mjs",
+        "config": {
+          "python": "@PYTHON@",
+          "workspace": "@WORKSPACE@",
+          "store": "@DATA@/versions",
+          "fullAccess": false,
+          "helloEnabled": false,
+          "parallelConversations": true,
+          "parallelFileWrites": true,
+          "readRoots": [
+            "@WORKSPACE@",
+            "@DATA@/history",
+            "@DATA@/legacy",
+            "@ROOT@/runtime"
+          ]
+        }
+      },
+      {
+        "id": "credentials-local",
+        "name": "@deepseek-ai/dsh-credentials-local",
+        "config": {
+          "dshHome": "@DATA@/dsh-home",
+          "watch": true
+        }
+      },
+      {
+        "id": "storage",
+        "name": "@deepseek-ai/dsh-storage",
+        "config": {}
+      },
+      {
+        "id": "storage-json",
+        "name": "@deepseek-ai/dsh-storage-json",
+        "config": {
+          "root": "@DATA@/storage-json"
+        }
+      },
+      {
+        "id": "storage-domain",
+        "name": "@deepseek-ai/dsh-storage-domain",
+        "config": {
+          "backend": "json"
+        }
+      },
+      {
+        "id": "typert",
+        "name": "@deepseek-ai/dsh-typert-registry",
+        "config": {}
+      },
+      {
+        "id": "attachment-local",
+        "name": "@deepseek-ai/dsh-attachment-local",
+        "config": {
+          "root": "@DATA@/attachment-local"
+        }
+      },
+      {
+        "id": "workspace",
+        "name": "@deepseek-ai/dsh-workspace",
+        "config": {}
+      },
+      {
+        "id": "text-channel",
+        "name": "@ROOT@/runtime/native_dsh/text-channel.mjs",
+        "config": {}
+      },
+      {
+        "id": "session-controller",
+        "name": "@deepseek-ai/dsh-api-session-controller",
+        "config": {
+          "nativeOpen": false
+        }
+      },
+      {
+        "id": "host-components",
+        "name": "@ROOT@/runtime/native_dsh/host-components.mjs",
+        "config": {
+          "python": "@PYTHON@",
+          "db": "@DATA@/budget.sqlite3"
+        }
+      },
+      {
+        "id": "persona-tasks",
+        "name": "@ROOT@/runtime/native_dsh/task-host.mjs",
+        "config": {
+          "workspace": "@WORKSPACE@"
+        }
+      },
+      {
+        "id": "computer-use",
+        "name": "@deepseek-ai/dsh-computer-use",
+        "config": {}
+      },
+      {
+        "id": "persona-computer",
+        "name": "@ROOT@/runtime/native_dsh/computer-host.mjs",
+        "config": {
+          "fullAccess": false
+        },
+        "disabled": true
+      }
+    ]
+  },
+  {
+    "insert": [
+      {
+        "id": "persona-preset-registry",
+        "name": "@deepseek-ai/dsh-agent-preset-registry",
+        "config": {
+          "default": "persona"
+        }
+      },
+      {
+        "id": "persona-preset-declaration",
+        "name": "@deepseek-ai/dsh-agent-preset",
+        "config": {
+          "id": "persona",
+          "name": "Persistent Persona",
+          "description": "One persistent identity; independent activities submit suggestions.",
+          "plugins": [
+            {
+              "id": "persona-resident-v1",
+              "name": "@MODULE_RESIDENT@",
+              "config": {
+                "workspace": "@WORKSPACE@",
+                "attentionLimit": 12,
+                "excerptBytes": 2400
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "persona-digital-life",
+        "name": "@ROOT@/runtime/native_dsh/digital-life/plugin.mjs",
+        "config": {
+          "secondaryFullAccess": false,
+          "workspace": "@WORKSPACE@",
+          "root": "@DATA@/digital-life",
+          "pollMs": 30000
+        }
+      },
+      {
+        "id": "persona-codex-advisor",
+        "name": "@ROOT@/runtime/native_dsh/digital-life/codex-advisor.mjs",
+        "config": {
+          "protectedRoot": "@DATA@/advisors"
+        }
+      }
+    ]
+  },
+  {
+    "id": "sessions",
+    "config": {
+      "root": "@DATA@/dsh-home/sessions",
+      "compression": "none"
+    }
+  }
+]

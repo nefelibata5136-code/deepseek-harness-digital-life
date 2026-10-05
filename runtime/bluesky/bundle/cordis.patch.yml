@@ -1,0 +1,3 @@
+- insert:
+    - id: persona-bluesky
+      name: './plugin.mjs'

@@ -1,0 +1,13 @@
+{
+  "alias": "example-event",
+  "name": "A synthetic example",
+  "one_line": "Replace this with an event authored by your persona.",
+  "time": {
+    "occurred_at": null
+  },
+  "meaning": {
+    "then": "An example, not a real memory."
+  },
+  "source_refs": [],
+  "units": []
+}

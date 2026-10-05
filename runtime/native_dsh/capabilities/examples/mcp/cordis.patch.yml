@@ -1,0 +1,19 @@
+# Copy into development/plugins/<name>/ and replace the placeholder endpoint.
+# Transport choices and reconnect fields are the official dsh-mcp-client Config.
+- insert:
+    - id: mcp-service
+      name: './runtime/native_dsh/capabilities/mcp-ref.mjs'
+      config:
+        transport: streamable-http
+        serverName: example
+        url: 'https://example.invalid/mcp'
+        toolCallTimeoutMs: 15000
+        reconnect:
+          enabled: true
+          initialDelayMs: 1000
+          maxDelayMs: 10000
+          maxAttempts: 3
+        headerRefs:
+          Authorization:
+            ref: DL_EXAMPLE_TOKEN
+            prefix: 'Bearer '

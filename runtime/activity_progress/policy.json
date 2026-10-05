@@ -1,0 +1,7 @@
+{
+  "enabled": true,
+  "selfReports": true,
+  "maxReportCharacters": 100,
+  "minReportIntervalSeconds": 30,
+  "quietWarningSeconds": 90
+}

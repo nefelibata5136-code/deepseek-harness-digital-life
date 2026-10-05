@@ -1,0 +1,1 @@
+{"name":"persona-memory","version":"1.0.0","private":true,"type":"module","description":"Persona-authored memory entrances and on-demand original chat reads","dsh":{"bundle":{"patch":"./cordis.patch.yml"}}}

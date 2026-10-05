@@ -1,0 +1,11 @@
+{
+  "maxFollowups": 3,
+  "maxTasksPerDay": 12,
+  "maxOpenTasks": 3,
+  "timeoutSeconds": 3600,
+  "pollIntervalSeconds": 60,
+  "maxRequestChars": 24000,
+  "maxResultBytes": 2097152,
+  "maxMessageBytes": 131072,
+  "resultPageChars": 16000
+}

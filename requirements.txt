@@ -1,0 +1,3 @@
+requests>=2.32,<3
+tzdata>=2026.1
+pywin32>=311; sys_platform == "win32"
