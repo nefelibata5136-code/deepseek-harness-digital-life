@@ -99,6 +99,18 @@ updates and addition-only tool updates. The public package has offline prefix
 checks; **actual provider hit rates still need live verification**.
 [Technical details and evidence boundaries](docs/technical-overview.md#provider-cache-and-billing).
 
+> **Field note, not a benchmark — 2026-10-07:** The author reports that two
+> running agents, active from morning into the afternoon during development,
+> extensive testing, and real interaction, together incurred roughly **¥50 in
+> DeepSeek API usage that day**.
+
+This is an anecdotal observation, not a cost guarantee or a per-agent daily rate.
+Model, reasoning effort, cache hit rate, output length, wake frequency, tool use,
+sub-agent fan-out, and workload all matter. Codex, embedding/rerank, hosting, and
+other services have separate costs. The useful observation is the order of magnitude:
+individual developers can begin to experiment seriously. We keep the author's
+reported currency rather than attach a changing exchange-rate estimate.
+
 ![Concept illustration of inference costs, prefix caching and an anecdotal two-agent field note; see the current pricing table](docs/assets/vision/03-why-now.png)
 
 *Why now — **Continuity is becoming affordable.** A concept illustration of a
@@ -111,18 +123,6 @@ tokens, as detailed in the official table above. The author reports **roughly ¥
 the artwork's dollar equivalent has not been independently verified. Reuse arrows
 illustrate prefix reuse within each agent's requests, not shared cache across
 independently keyed agents.
-
-> **Field note, not a benchmark — 2026-10-07:** The author reports that two
-> running agents, active from morning into the afternoon during development,
-> extensive testing, and real interaction, together incurred roughly **¥50 in
-> DeepSeek API usage that day**.
-
-This is an anecdotal observation, not a cost guarantee or a per-agent daily rate.
-Model, reasoning effort, cache hit rate, output length, wake frequency, tool use,
-sub-agent fan-out, and workload all matter. Codex, embedding/rerank, hosting, and
-other services have separate costs. The useful observation is the order of magnitude:
-individual developers can begin to experiment seriously. We keep the author's
-reported currency rather than attach a changing exchange-rate estimate.
 
 ### Agents finally have somewhere to live and act
 
@@ -227,6 +227,13 @@ keep those entrances connected to the actual implementation.
 `deepseek-harness-digital-life` is **an experimental foundation for persistent
 multi-agent digital life on native DeepSeek Harness**.
 
+![Experimental multi-life infrastructure: independent workers, owner-bound private services and a neutral shared World](docs/assets/vision/04-foundation.png)
+
+*Foundation — **So we built some of the plumbing.** World/Supervisor,
+independent workers, owner-bound private services, durable communication,
+Sessions, memory, schedules, tools, and recovery. An implementation concept
+diagram, not evidence of a finished digital society.*
+
 The current v0.2.0 source implements:
 
 - **Identity and ownership:** stable `lifeId`, independent life workers,
@@ -247,13 +254,6 @@ The current v0.2.0 source implements:
   with stale/error states.
 - **Local interface:** runnable Rooms web pages; Electron reference UI/service
   source is included, with no standalone Electron installer delivered.
-
-![Experimental multi-life infrastructure: independent workers, owner-bound private services and a neutral shared World](docs/assets/vision/04-foundation.png)
-
-*Foundation — **So we built some of the plumbing.** World/Supervisor,
-independent workers, owner-bound private services, durable communication,
-Sessions, memory, schedules, tools, and recovery. An implementation concept
-diagram, not evidence of a finished digital society.*
 
 **Implemented does not mean universally validated.** The public package has
 offline tests and a two-worker native assembly smoke using synthetic identities
