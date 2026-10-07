@@ -40,6 +40,10 @@ cookies.*
 reports/
 *.zip
 *.png
+!docs/assets/vision/01-future.png
+!docs/assets/vision/02-primitives.png
+!docs/assets/vision/03-why-now.png
+!docs/assets/vision/04-foundation.png
 *.jpg
 *.jpeg
 *.webp

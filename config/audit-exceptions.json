@@ -174,5 +174,33 @@
       "credential-assignment"
     ],
     "reason": "Reviewed explicitly synthetic offline rejection fixture; never used as an account credential."
+  },
+  "docs/assets/vision/01-future.png": {
+    "sha256": "60902c44b000bf5877b74f2984b17c9b269a5be81c6fd342e2d9450c30c98176",
+    "rules": [
+      "public-vision-image"
+    ],
+    "reason": "Author-supplied public concept artwork visually reviewed for publication; exact PNG bytes only, not private screenshots or account data."
+  },
+  "docs/assets/vision/02-primitives.png": {
+    "sha256": "3cddd527cd4ac5470d3639894f5d0050ee72aafce39ba92728ffc678d3ff3d3c",
+    "rules": [
+      "public-vision-image"
+    ],
+    "reason": "Author-supplied public concept artwork visually reviewed for publication; exact PNG bytes only, not private screenshots or account data."
+  },
+  "docs/assets/vision/03-why-now.png": {
+    "sha256": "5a73a3f4f7c2aceb7fd1288d6df99d252d454c36f6b77be2fac8c71ba13146b4",
+    "rules": [
+      "public-vision-image"
+    ],
+    "reason": "Author-supplied public concept artwork visually reviewed for publication; exact PNG bytes only, not private screenshots or account data."
+  },
+  "docs/assets/vision/04-foundation.png": {
+    "sha256": "6fb8951ade2a7bb98c4f5164e7251ebc3fd4f6a0eacadd78027aec2dbce36c14",
+    "rules": [
+      "public-vision-image"
+    ],
+    "reason": "Author-supplied public concept artwork visually reviewed for publication; exact PNG bytes only, not private screenshots or account data."
   }
 }

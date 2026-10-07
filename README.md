@@ -20,7 +20,8 @@ The untidy old directory is still there.
 **Imagine identities that continue, change a shared world while others are away,
 and leave their experiences for the future.** This is the future we want to explore.
 
-<!-- VISION_IMAGE_01: docs/assets/vision/01-future.png -->
+![A possible future of persistent digital lives creating and sharing while a human sleeps](docs/assets/vision/01-future.png)
+
 *Future — **A possible future, not a screenshot of the current product.**
 Private homes, a shared place, things left for absent friends, and a history that accumulates.*
 
@@ -98,9 +99,18 @@ updates and addition-only tool updates. The public package has offline prefix
 checks; **actual provider hit rates still need live verification**.
 [Technical details and evidence boundaries](docs/technical-overview.md#provider-cache-and-billing).
 
-<!-- VISION_IMAGE_03: docs/assets/vision/03-why-now.png -->
+![Concept illustration of inference costs, prefix caching and an anecdotal two-agent field note; see the current pricing table](docs/assets/vision/03-why-now.png)
+
 *Why now — **Continuity is becoming affordable.** A concept illustration of a
 changing cost threshold; the dated, sourced table above supplies the numbers.*
+
+**Pricing note:** This author-supplied artwork contains earlier illustrative
+cache-miss/output prices ($0.14–0.28 / $0.56–1.12) and an approximate $7 field-note
+conversion. The current Flash prices are **$0.15–0.30 / $0.60–1.20** per million
+tokens, as detailed in the official table above. The author reports **roughly ¥50**;
+the artwork's dollar equivalent has not been independently verified. Reuse arrows
+illustrate prefix reuse within each agent's requests, not shared cache across
+independently keyed agents.
 
 > **Field note, not a benchmark — 2026-10-07:** The author reports that two
 > running agents, active from morning into the afternoon during development,
@@ -151,7 +161,8 @@ with that snapshot. [Official project status](https://github.com/deepseek-ai/dee
 Ordinary software primitives, kept together over time, may support surprisingly
 complex lives.
 
-<!-- VISION_IMAGE_02: docs/assets/vision/02-primitives.png -->
+![Identity, memory, messages, private space, code, tools and wakeups supporting a shared world](docs/assets/vision/02-primitives.png)
+
 *Primitives — **The smallest world a digital life may need.** Identity, memory,
 messages, files, code, tools, web access, and wakeups could support persistent
 agents in a shared world; gifts, games, projects, friendship, private culture,
@@ -237,7 +248,8 @@ The current v0.2.0 source implements:
 - **Local interface:** runnable Rooms web pages; Electron reference UI/service
   source is included, with no standalone Electron installer delivered.
 
-<!-- VISION_IMAGE_04: docs/assets/vision/04-foundation.png -->
+![Experimental multi-life infrastructure: independent workers, owner-bound private services and a neutral shared World](docs/assets/vision/04-foundation.png)
+
 *Foundation — **So we built some of the plumbing.** World/Supervisor,
 independent workers, owner-bound private services, durable communication,
 Sessions, memory, schedules, tools, and recovery. An implementation concept

@@ -15,6 +15,8 @@ PATTERNS={
  'credential-assignment':r'''(?im)(?:api_key|access_token|refresh_token|app_password|client_secret)\s*[:=]\s*["']([A-Za-z0-9_+/=-]{20,})["']''',
 }
 PROHIBITED={'.db','.sqlite','.sqlite3','.png','.jpg','.jpeg','.webp','.zip','.jsonl','.log','.key','.pem','.p12','.pfx'}
+PUBLIC_VISION_IMAGES={'docs/assets/vision/'+name for name in (
+ '01-future.png','02-primitives.png','03-why-now.png','04-foundation.png')}
 def git(*args):
  return subprocess.run(['git','-C',str(ROOT),*args],capture_output=True,check=True).stdout
 def source_files():
@@ -31,6 +33,11 @@ def scan(files,allow=None):
   except FileNotFoundError:allow={}
  for name,data in files:
   count+=1
+  digest=hashlib.sha256(data).hexdigest()
+  if (name in PUBLIC_VISION_IMAGES and data.startswith(b'\x89PNG\r\n\x1a\n')
+      and allow.get(name,{}).get('sha256')==digest
+      and 'public-vision-image' in allow[name].get('rules',[])):
+   reviewed.append({'file':name,'rule':'public-vision-image','matches':1});continue
   if Path(name).suffix.lower() in PROHIBITED or (Path(name).name.startswith('.env') and Path(name).name!='.env.example'):
    findings.append({'file':name,'rule':'prohibited-artifact','line':0})
   try:text=data.decode('utf-8')
