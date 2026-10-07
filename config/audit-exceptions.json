@@ -7,11 +7,11 @@
     "reason": "Reviewed deterministic offline placeholder or deliberately synthetic credential-rejection fixture; never used for authentication."
   },
   "runtime/key_output_guard/verify.mjs": {
-    "sha256": "d4cd1960286833a240cc2fc117185a76ccf1e3961e061514076cac0fd255fec2",
+    "sha256": "aab8f6d51e72b758f8f3ae61944e3ae39e126f9a01e8157add05744d2b5082d5",
     "rules": [
       "provider-key"
     ],
-    "reason": "Reviewed deterministic offline placeholder or deliberately synthetic credential-rejection fixture; never used for authentication."
+    "reason": "Reviewed explicitly synthetic offline rejection fixture; never used as an account credential."
   },
   "runtime/native_dsh/verify-computer-lifecycle.mjs": {
     "sha256": "3f014a0abff867be87a9443efbba8b66204cd5984ae830f0bede4be967155723",
@@ -42,18 +42,18 @@
     "reason": "Reviewed deterministic offline placeholder or deliberately synthetic credential-rejection fixture; never used for authentication."
   },
   "runtime/native_dsh/digital-life/codex-advisor.test.mjs": {
-    "sha256": "a7a950af1b5ebebf0de13ac8c210c20a836364fdf51515e4a768c11897e8fab5",
+    "sha256": "43c9e7a70cd30602cdcb9b4e851bf2d7facc06c73dfc6b28af17c6cd940a2ea2",
     "rules": [
       "credential-assignment"
     ],
-    "reason": "Reviewed deterministic offline placeholder or deliberately synthetic credential-rejection fixture; never used for authentication."
+    "reason": "Reviewed explicitly synthetic offline rejection fixture; never used as an account credential."
   },
   "runtime/native_dsh/digital-life/verify-resident.mjs": {
-    "sha256": "c7402fbded7aafe6eddd8da408f92a7fda5e5087251832a479bf00d5aa1f4f68",
+    "sha256": "9f0e9c6365ce4d9d93aac5bdc474c38fcee29b212eb4d2af462c44cb50f16eff",
     "rules": [
       "credential-assignment"
     ],
-    "reason": "Reviewed deterministic offline placeholder or deliberately synthetic credential-rejection fixture; never used for authentication."
+    "reason": "Reviewed explicitly synthetic offline rejection fixture; never used as an account credential."
   },
   "runtime/self_maintenance/verify-change.mjs": {
     "sha256": "9df11ead1fa535aa04e3f0772696ff4e84d110684e31127f86128a8e54a31ca1",
@@ -68,5 +68,111 @@
       "credential-assignment"
     ],
     "reason": "Reviewed deterministic offline placeholder or deliberately synthetic credential-rejection fixture; never used for authentication."
+  },
+  "plugins/dots/bridge.test.mjs": {
+    "sha256": "1229f9b3283f9a3f6b619efcc2691e0d76495e8213583a74d07398a14cfbc617",
+    "rules": [
+      "provider-key"
+    ],
+    "reason": "Reviewed explicitly synthetic offline rejection fixture; never used as an account credential."
+  },
+  "runtime/activity_progress/verify-native.mjs": {
+    "sha256": "5dca9d5c011f0c3ffacf6180f78dc899d8a2159db17ff49fc935fc46fad1d9c7",
+    "rules": [
+      "credential-assignment"
+    ],
+    "reason": "Reviewed explicitly synthetic offline rejection fixture; never used as an account credential."
+  },
+  "runtime/budget_guard/verify-context-overflow.mjs": {
+    "sha256": "1bd1c8051425a3a9bf877134773d54c5e609b4fb280702bdac9402e874cfb24f",
+    "rules": [
+      "provider-key"
+    ],
+    "reason": "Reviewed explicitly synthetic offline rejection fixture; never used as an account credential."
+  },
+  "runtime/desktop_persona/verify-interrupt-native.mjs": {
+    "sha256": "e96f6bcb4a4c86119b81a675f5594748c8ca49a7c9c9599163f5c149582b00d6",
+    "rules": [
+      "credential-assignment"
+    ],
+    "reason": "Reviewed explicitly synthetic offline rejection fixture; never used as an account credential."
+  },
+  "runtime/desktop_persona/verify-steering-native.mjs": {
+    "sha256": "3d8adb82f25d46ea34b4516fe608514184c7d2a8d2552b3656cd051c3e988ea0",
+    "rules": [
+      "credential-assignment"
+    ],
+    "reason": "Reviewed explicitly synthetic offline rejection fixture; never used as an account credential."
+  },
+  "runtime/native_dsh/check-subagents.mjs": {
+    "sha256": "b0a6f3dbadd8308ec558eabcaa2866dd22b48371fc6030103985691e3acfb854",
+    "rules": [
+      "credential-assignment"
+    ],
+    "reason": "Reviewed explicitly synthetic offline rejection fixture; never used as an account credential."
+  },
+  "runtime/native_dsh/digital-life/verify-runtime.mjs": {
+    "sha256": "b5d8ac4eaabf13a0a10f6a745b035d53690fecbca7dfdb77d2ae8985d976bf26",
+    "rules": [
+      "credential-assignment"
+    ],
+    "reason": "Reviewed explicitly synthetic offline rejection fixture; never used as an account credential."
+  },
+  "runtime/native_dsh/multi-life/budget/test_credential_import.py": {
+    "sha256": "20e5b512d8c605e079c915329d48ce0a090cc666e2454200cc79047891f05c37",
+    "rules": [
+      "credential-assignment",
+      "provider-key"
+    ],
+    "reason": "Reviewed explicitly synthetic offline rejection fixture; never used as an account credential."
+  },
+  "runtime/native_dsh/multi-life/budget/test_usage.py": {
+    "sha256": "a49e98543ef43e831ee35a70d4a31ddbd722acc4f0b277dac95ace93c275598b",
+    "rules": [
+      "provider-key"
+    ],
+    "reason": "Reviewed explicitly synthetic offline rejection fixture; never used as an account credential."
+  },
+  "runtime/native_dsh/multi-life/platform/legacy-fixture-worker.mjs": {
+    "sha256": "e40038dbd0cf8f9a1301ba4717a0df7267815a142aa3c8016d7fd0486c1bb4b6",
+    "rules": [
+      "credential-assignment"
+    ],
+    "reason": "Reviewed explicitly synthetic offline rejection fixture; never used as an account credential."
+  },
+  "runtime/native_dsh/multi-life/platform/official-provider.test.mjs": {
+    "sha256": "cb6f7e4bfc3e7e27880828501c3cbcfd0ccdb72762b29abf0a03f35147363362",
+    "rules": [
+      "provider-key"
+    ],
+    "reason": "Reviewed explicitly synthetic offline rejection fixture; never used as an account credential."
+  },
+  "runtime/native_dsh/multi-life/supervisor/acceptance-tools.mjs": {
+    "sha256": "ef8839637f9923bebae5111f28c0293b900a359982d3abd24236aa688ba49b99",
+    "rules": [
+      "provider-key"
+    ],
+    "reason": "Reviewed explicitly synthetic offline rejection fixture; never used as an account credential."
+  },
+  "runtime/native_dsh/verify-channel.mjs": {
+    "sha256": "5c269fe1c14ebecf0cf7dec317b24291037f6d0654ed4af9b9cc5ee2ab087799",
+    "rules": [
+      "credential-assignment"
+    ],
+    "reason": "Reviewed explicitly synthetic offline rejection fixture; never used as an account credential."
+  },
+  "runtime/native_dsh/verify-computer-offline.mjs": {
+    "sha256": "6df5d7c92946008ce5ef93a4cad068e9dae0b34a5da4fd9f33e7ca02972b0db7",
+    "rules": [
+      "credential-assignment"
+    ],
+    "reason": "Reviewed explicitly synthetic offline rejection fixture; never used as an account credential."
+  },
+  "runtime/native_dsh/verify-integrated.mjs": {
+    "sha256": "7e16df2fdec857aafccfe2dcd2fdc97b55e1e3bac439af197a1fbb5089f5e72d",
+    "rules": [
+      "credential-assignment"
+    ],
+    "reason": "Reviewed explicitly synthetic offline rejection fixture; never used as an account credential."
   }
 }

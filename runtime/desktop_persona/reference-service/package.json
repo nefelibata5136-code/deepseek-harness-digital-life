@@ -1,0 +1,1 @@
+{"name":"@local/persona-reference-state-service","version":"1.0.0","private":true,"type":"module","main":"service.mjs","exports":{".":"./service.mjs","./package.json":"./package.json"}}

@@ -1,0 +1,1 @@
+{"name":"@local/persona-thinking-translation","version":"1.0.0","private":true,"type":"module","main":"index.mjs","exports":{".":"./index.mjs","./client":"./client.js","./package.json":"./package.json"},"dsh":{"client":{"platform":"web","immediately":true,"inject":["@deepseek-ai/dsh-client-ui-layout"]}},"dependencies":{"playwright-core":"1.64.0-alpha-1790635538000"}}

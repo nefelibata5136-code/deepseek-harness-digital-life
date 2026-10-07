@@ -1,7 +1,7 @@
 import { defineTool } from '@deepseek-ai/dsh-tools';
 import { PrivateVaultStore } from './store.mjs';
 import { VaultError } from './crypto.mjs';
-import { installSessionPrivacy, PRIVATE_NAMES } from './session-privacy.mjs';
+import { installSessionPrivacy, PRIVATE_NAMES, isPrivateCompletionAck } from './session-privacy.mjs';
 
 export const inject = ['tools', 'sessions', 'systemPrompt'];
 const string = required => ({ type: 'string', ...(required ? { required: true } : {}) });
@@ -23,8 +23,14 @@ export async function apply(ctx, config) {
     delete: '删除自己的指定文档；返回 deleted。不要借此删除他人的资料。',
   };
   // Prevent accidental copies from private context into ordinary files/tools/subagents.
-  ctx.tools.guard(exec => !config.fullAccess && privacy.active(exec.agent?.session) && !PRIVATE_NAMES.includes(exec.name)
-    ? 'PRIVATE_CONTEXT_TOOL_BLOCKED: finish this private turn before using public tools' : undefined);
+  ctx.tools.guard(exec => {
+    if(config.fullAccess||!privacy.active(exec.agent?.session)||PRIVATE_NAMES.includes(exec.name))return;
+    const session=exec.agent?.session,header=session?.header;
+    let owner=Boolean(header)&&header.id===session?.id&&header.origin!=='subagent'&&(header.delegationDepth??0)===0;
+    if(owner&&ctx.multiLifeContexts?.registry){try{owner=ctx.multiLifeContexts.registry.owner(session.id).role!=='delegate';}catch{owner=false;}}
+    if(owner&&exec.name==='life_turn_ack'&&isPrivateCompletionAck(exec.arguments))return;
+    return 'PRIVATE_CONTEXT_TOOL_BLOCKED: finish this private turn before using public tools';
+  });
   for (const name of PRIVATE_NAMES) {
     const operation = name.split('_')[1];
     ctx.tools.register(defineTool({ name, description: descriptions[operation], parameters: parameters[operation],

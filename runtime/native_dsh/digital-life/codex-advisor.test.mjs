@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { ADVISOR_CONFIG, apply, createCodexAdvisor } from './codex-advisor.mjs';
 
-test('advice runs isolate configuration/cwd, retain full results and preserve official disposal', async () => {
+test('full-access runs retain parent cwd, isolate login/records, preserve results and disposal', async () => {
   const fixture = await mkdtemp(join(tmpdir(), 'persona-advisor-'));
   try {
     const authSource = join(fixture, 'user-codex', 'auth.json');
@@ -17,6 +17,7 @@ test('advice runs isolate configuration/cwd, retain full results and preserve of
     let disposed = 0;
     const calls = [];
     const originalParent = { session: { header: { id: 'seat', cwd: join(fixture, 'original-space') } } };
+    await mkdir(originalParent.session.header.cwd);
     const output = '完整建议' + 'abcdef'.repeat(10000);
     const raw = { capabilities: {}, async start(request) {
       calls.push(request);
@@ -29,12 +30,15 @@ test('advice runs isolate configuration/cwd, retain full results and preserve of
     const runs = await Promise.all([advisor.provider.start(request), advisor.provider.start(request)]);
     const actualConfig = await readFile(join(advisor.home, 'config.toml'), 'utf8');
     assert.ok(actualConfig.startsWith(ADVISOR_CONFIG));
-    assert.match(actualConfig, /sandbox_mode = "read-only"/);
+    assert.match(actualConfig, /sandbox_mode = "danger-full-access"/);
+    assert.match(actualConfig, /approval_policy = "never"/);
+    assert.match(actualConfig, /shell_tool = true/);
     assert.match(actualConfig, /apps = false/);
     assert.equal(await readFile(join(advisor.home, 'auth.json'), 'utf8'), synthetic);
     assert.equal(await readFile(authSource, 'utf8'), synthetic);
     assert.match(await readFile(join(fixture, 'user-codex', 'config.toml'), 'utf8'), /danger-full-access/);
-    assert.notEqual(calls[0].parent.session.header.cwd, calls[1].parent.session.header.cwd);
+    assert.equal(calls[0].parent.session.header.cwd, originalParent.session.header.cwd);
+    assert.equal(calls[1].parent.session.header.cwd, originalParent.session.header.cwd);
     assert.equal(request.parent, originalParent);
     assert.equal(originalParent.session.header.cwd, join(fixture, 'original-space'));
     assert.match(calls[0].prompt[0].text, /没有人格身份和正式发言权/);
@@ -43,6 +47,8 @@ test('advice runs isolate configuration/cwd, retain full results and preserve of
     const metadata = JSON.parse(result.output[1].text);
     assert.equal(metadata.source, 'advisor');
     assert.equal(metadata.authoritative, false);
+    assert.equal(metadata.access,'danger-full-access');
+    assert.notEqual(metadata.runRecordDirectory,JSON.parse((await runs[1].result).output[1].text).runRecordDirectory);
     assert.equal(await readFile(join(metadata.workDirectory, 'advice.txt'), 'utf8'), output);
     assert.equal(JSON.stringify(result).includes('synthetic-offline-only'), false);
     await Promise.all(runs.map(run => run.dispose()));

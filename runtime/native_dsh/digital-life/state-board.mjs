@@ -17,7 +17,7 @@ export const stateExplanation = `我们想让真正影响你当前存在状态�
 const defaultState = () => ({ activity: null, desired_reasoning_effort: null, resident_state: null,
   activityStartedAt: null, author: null });
 const output = { schema: { type: 'json' }, render: (_a, value) => [{ type: 'text', text: JSON.stringify(value) }] };
-const internal = new Set(['runtime-context', 'time-context', 'persona-state', 'persona-state-retired', 'digital-life-state-reentry']);
+const internal = new Set(['runtime-context', 'time-context', 'persona-state', 'persona-state-retired', 'life-current-state', 'life-state-retired', 'digital-life-state-reentry']);
 // Persist through the native tool/result journal. Custom event names cannot be
 // decoded by pinned DSH after a restart; never bypass its event validation.
 export function stateChanges(events) {
@@ -37,6 +37,7 @@ export function stateChanges(events) {
 }
 export function mountStateBoard(ctx, { defaultEffort = 'low' } = {}) {
   const life = ctx.personaLife, states = new WeakMap(), inputs = new WeakMap(), effective = new WeakMap(), pendingBoards = new WeakMap(), provisional = new WeakMap(), origins = new WeakMap(), finalRequests = new WeakSet();
+  const ownerId = life.identity?.lifeId ?? 'persona';
   const get = agent => {
     if (!states.has(agent)) {
       const latest = stateChanges(agent.session.ownEvents()).at(-1);
@@ -61,7 +62,7 @@ export function mountStateBoard(ctx, { defaultEffort = 'low' } = {}) {
     // Host-only ingress annotation, never a model tool. Consumed by the exact
     // native rpcId, then preserved in the actual per-request board trace.
     annotateInput(agent, requestId, identity) { origins.set(agent, { requestId, ...identity }); },
-    owner: { activity: 'persona', desired_reasoning_effort: 'persona', resident_state: 'persona',
+    owner: { activity: ownerId, desired_reasoning_effort: ownerId, resident_state: ownerId,
       now: 'runtime', input: 'runtime', actualEffort: 'runtime', activityStartedAt: 'runtime', nextSelfWake: 'native schedule' },
     async board(agent, resolved) {
       const state = get(agent), meta = await metadata(agent), schedules = life.intention?.isSample(agent)
@@ -75,8 +76,8 @@ export function mountStateBoard(ctx, { defaultEffort = 'low' } = {}) {
       const wake = sample ? JSON.parse(life.intention.snapshotFor(agent).sections.wakeFacts ?? 'null') : life.wakeFacts?.(agent);
       const desired = state.desired_reasoning_effort ?? (meta.efforts.includes(defaultEffort) ? defaultEffort : meta.adapterDefault);
       const actual = resolved?.reasoningEffort ?? effective.get(agent)?.reasoningEffort ?? meta.route.reasoningEffort ?? meta.adapterDefault;
-      return { facts: { now: Date.now(), role: sample ? 'parallel intention branch（同源草稿，无主线行动权）' : 'primary continuous line',
-        input: sample ? { sender: 'persona', type: 'intention_sampling', channel: 'native child', reason: 'one independent expansion of frozen main state' }
+      return { facts: { now: Date.now(), ...(life.identity ? {lifeId:ownerId,selfOwner:'本人'} : {}), role: sample ? 'parallel intention branch（同源草稿，无主线行动权）' : 'primary continuous line',
+        input: sample ? { sender: ownerId, type: 'intention_sampling', channel: 'native child', reason: 'one independent expansion of frozen main state' }
           : inputs.get(agent) ?? { sender: 'unknown', type: 'unknown', channel: 'unknown', reason: 'unknown' },
         phase: sample ? 'independent sampling' : inputs.get(agent)?.type === 'resident_decision' ? 'Resident Decision' : 'model request（正在执行请求，非心理判断）',
         actualEffort: actual, supportedEfforts: meta.efforts, defaultEffort: desired, nextSelfWake: future[0]?.scheduledAt ?? null,
@@ -115,7 +116,7 @@ export function mountStateBoard(ctx, { defaultEffort = 'low' } = {}) {
         const settings = await life.store.settings();
         await life.store.saveClock({ nextWakeAt: new Date(at + settings.intervalMs).toISOString() });
       }
-      next.author = { kind: 'persona-native-call', sessionId: String(exec.agent.session.id), callId: String(exec.callId), at: now, reason: args.reason ?? null };
+      next.author = { kind: life.identity ? 'digital-life-native-call' : 'persona-native-call', ...(life.identity ? {lifeId:ownerId} : {}), sessionId: String(exec.agent.session.id), callId: String(exec.callId), at: now, reason: args.reason ?? null };
       const current = effective.get(exec.agent)?.reasoningEffort ?? meta.route.reasoningEffort ?? meta.adapterDefault;
       const escalated = 'desired_reasoning_effort' in args && meta.efforts.indexOf(args.desired_reasoning_effort) > meta.efforts.indexOf(current);
       const change = { state: next, before, provenance: next.author,
@@ -161,7 +162,8 @@ export function mountStateBoard(ctx, { defaultEffort = 'low' } = {}) {
       const trusted = annotation?.requestId === message.source?.rpcId ? annotation : null;
       if (trusted) origins.delete(request.agent);
       inputs.set(request.agent, trusted ? { sender: trusted.sender, type: trusted.sourceType, channel: trusted.channel,
-        reason: trusted.reason ?? 'trusted runtime ingress annotation', requestId: trusted.requestId, provenance: 'host ingress annotation' } : inputIdentity(message));
+        reason: trusted.reason ?? 'trusted runtime ingress annotation', requestId: trusted.requestId, provenance: 'host ingress annotation' } : {...inputIdentity(message),
+          ...(life.identity && message.source?.kind==='resident-continuation' ? {sender:ownerId} : {})});
     }
     return decision;
   }, { prepend: true });

@@ -17,7 +17,7 @@ export function publicName(id, raw) {
   const base = `cap__${id}__${raw}`;
   return base.length <= 64 ? base : base.slice(0, 51) + '_' + createHash('sha256').update(base).digest('hex').slice(0, 12);
 }
-export function createBus(config, { credentialBackend, agentAccess } = {}) {
+export function createBus(config, { credentialBackend, agentAccess, runForAgent } = {}) {
   const root = resolve(config.root);
   const timeoutMs = config.toolTimeoutMs ?? 30000;
   const startupTimeoutMs = config.startupTimeoutMs ?? 20000;
@@ -64,7 +64,7 @@ export function createBus(config, { credentialBackend, agentAccess } = {}) {
     live.worker = createWorker({ profile: join(root, id), home: resolve(root, '..'), python: config.python, memoryMb, timeoutMs, startupTimeoutMs, maxBytes,
       credential: async (action, ref) => {
         if (!['resolve', 'describe'].includes(action) || !entry.credentialRefs.includes(ref)) throw new Error('Credential not granted');
-        const result = await (credentialBackend ?? ((action, ref) => credentialOperation(config.python, action, ref)))(action, ref);
+        const result = await (credentialBackend ?? ((action, ref) => credentialOperation(config.python, action, ref)))(action, ref, id);
         if (action === 'resolve' && result?.value) secrets.add(result.value);
         return result;
       },
@@ -121,7 +121,7 @@ export function createBus(config, { credentialBackend, agentAccess } = {}) {
             continue;
           }
           const credentials = await Promise.all(entry.credentialRefs.map(async ref => {
-            try { return { ref, ...await (credentialBackend ?? ((action, ref) => credentialOperation(config.python, action, ref)))('describe', ref) }; }
+            try { return { ref, ...await (credentialBackend ?? ((action, ref) => credentialOperation(config.python, action, ref)))('describe', ref, id) }; }
             catch { return { ref, configured: false, error: 'CREDENTIAL_STORE_UNAVAILABLE' }; }
           }));
           entries.push({ id, kind: entry.kind, description: entry.description, enabled: entry.enabled,
@@ -154,7 +154,8 @@ export function createBus(config, { credentialBackend, agentAccess } = {}) {
           output: { schema: {}, render: (_args, result) => result.content },
           async execute(args, exec) {
             if (!exec.agent || exec.agent.ctx !== scope) throw new Error('CAPABILITY_SCOPE_REQUIRED');
-            return api.call(tool.capability, tool.nativeName, args, exec.callId, exec.signal, api.accessForAgent(exec.agent));
+            const operation=()=>api.call(tool.capability, tool.nativeName, args, exec.callId, exec.signal, api.accessForAgent(exec.agent));
+            return runForAgent?runForAgent(exec,operation):operation();
           } };
         const unregister = scope.tools.register(definition);
         const dispose = scope.effect(() => () => {

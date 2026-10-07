@@ -68,7 +68,7 @@ class ApiClient:
                     headers={
                         "Authorization": f"Bearer {self.api_key}",
                         "Content-Type": "application/json",
-                        "User-Agent": "DigitalLifeRuntime/memory-retrieval",
+                        "User-Agent": "AI-Math-Log/knowledge-point-retrieval-20260915",
                     },
                     json=body,
                     timeout=self.timeout,

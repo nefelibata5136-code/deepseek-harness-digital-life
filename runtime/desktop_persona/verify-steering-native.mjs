@@ -1,0 +1,40 @@
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+import {mkdir,writeFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
+import {bootNative,here} from '../native_dsh/boot-native.mjs';
+import {admitSteering} from '../native_dsh/steering.mjs';
+import {fixtureTransport} from '../native_dsh/fixture-transport.mjs';
+const root=resolve(here,'../../reports/task_A/steering-'+randomUUID()),workspace=resolve(root,'workspace');
+await mkdir(workspace,{recursive:true});
+for(const [file,body] of [['AGENTS.md','# Isolated steering fixture'],['persona-core.md','# Fixture'],['audit.txt','fixture']])await writeFile(resolve(workspace,file),body);
+process.env.DEEPSEEK_API_KEY='offline-placeholder-not-a-secret';
+const fixture=fixtureTransport(workspace);let count=0;
+globalThis.fetch=async(url,init)=>{count++;if(count===2){const next=fixtureTransport(workspace,{startAt:2});const response=await next.transport(url,init);fixture.wires.push(...next.wires);return response;}return fixture.transport(url,init);};
+const primary=randomUUID(),ctx=await bootNative({sessionId:primary,testRoot:root});
+let release,entered;const hold=new Promise(r=>release=r),started=new Promise(r=>entered=r);let toolAborted=false;
+ctx.on('tools/execute',async(exec,next)=>{if(exec.name==='read'){entered();exec.signal.addEventListener('abort',()=>toolAborted=true,{once:true});await hold;}return next();});
+try{
+ await ctx.sessionController.create({sessionId:primary,cwd:workspace});
+ const lease=await ctx.personaTurnAdmission.acquire(primary);
+ await ctx.sessionController.prompt({sessionId:primary,requestId:randomUUID(),mode:'queue',clientTimeZone:'Asia/Shanghai',content:[{type:'text',text:'original-running-request'}]},new AbortController().signal);
+ const {agent}=await ctx.sessionController.resolveAgent(primary);await started;
+ const before=[...agent.session.ownEvents()],turn=before.findLast(e=>e.type==='turn/start').data.turn;
+ const clockBefore=(await ctx.personaLife.store.state()).clock.lastWakeAt;
+ const messages=[{sessionId:primary,requestId:randomUUID(),text:'first-live-supplement'},{sessionId:primary,requestId:randomUUID(),text:'second-live-supplement'}];
+ const receipts=await Promise.race([Promise.all(messages.map(m=>admitSteering(ctx,m))),new Promise((_,reject)=>{const t=setTimeout(()=>reject(Error('Steer waited for tool/turn lease')),5000);t.unref();})]);
+ await admitSteering(ctx,messages[0]);
+ assert(receipts.every(r=>r.state==='accepted'));assert.equal(toolAborted,false);
+ assert.equal([...agent.session.ownEvents()].filter(e=>e.type==='turn/start').length,1);
+ assert.equal((await ctx.personaLife.store.state()).clock.lastWakeAt,clockBefore);
+ release();await agent.whenIdle();lease.release();await ctx.sessions.flush(agent.session);
+ const events=[...agent.session.ownEvents()];
+ assert.equal(events.filter(e=>e.type==='turn/start').length,1);
+ assert.equal(events.filter(e=>e.type==='turn/end').length,1);
+ assert.equal(events.findLast(e=>e.type==='turn/end').data.reason.kind,'completed');
+ assert.equal(events.findLast(e=>e.type==='turn/end').data.turn,turn);
+ assert.equal((await ctx.personaLife.store.state()).clock.lastWakeAt,clockBefore);
+ for(const m of messages){assert.equal(events.filter(e=>e.type==='user/message'&&e.data.source?.rpcId===m.requestId).length,1);assert(fixture.wires.some(w=>JSON.stringify(w.messages).includes(m.text)));}
+ const result={passed:true,observedAt:new Date().toISOString(),realNativeSteering:true,toolAborted:false,turnStarts:1,turnEnds:1,sameTurn:turn,wakeTimestampUnchanged:true,duplicateRequestDeliveredOnce:true,receiptBeforeToolFinished:true,paidModelCalls:0,productionMessages:0,root};
+ await writeFile(resolve(here,'../../reports/steering-fix/native-validation.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result));
+}finally{release();await ctx.fiber.dispose();}

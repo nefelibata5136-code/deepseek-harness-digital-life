@@ -13,11 +13,9 @@ const n = () => ({ type: 'integer' });
 export const baselineToolNames = ['list_files', 'read', 'read_source', 'search_history', 'write', 'terminal',
   'edit', 'skill', 'budget_status', 'schedule_create', 'schedule_list', 'schedule_update', 'schedule_delete',
   'session_search', 'session_event_search', 'session_trace', 'session_event_trace', 'session_event_read', 'task_list', 'task_create', 'context_compact',
-  'context_compact_prepare', 'context_compact_commit', 'context_compact_status', 'context_compact_read',
-  'recovery_diagnostics', 'recovery_checkpoint', 'recovery_resume',
   'capability_list', 'capability_search', 'capability_manage', 'digital_life_state_read', 'digital_life_state_update',
   'private_write', 'private_read', 'private_search', 'private_list', 'private_delete',
-  'subagent', 'send_message', 'list_agents', 'interrupt_agent', 'subagent_codex'];
+  'subagent', 'send_message', 'list_agents', 'interrupt_agent', 'subagent_codex', 'subagent_deepseek', 'subagent_results', 'subagent_cancel'];
 
 export function apply(ctx, config) {
   // Composition is deployment-owned. B/C hand off reviewed tool names here;
@@ -26,6 +24,7 @@ export function apply(ctx, config) {
   const cleanEnv = Object.fromEntries(Object.entries(process.env).filter(([k]) =>
     ['DL_PYTHON', 'DL_WORKSPACE', 'DL_DATA', 'DSH_HOME', 'PATH', 'SYSTEMROOT', 'WINDIR', 'COMSPEC', 'PATHEXT', 'USERPROFILE', 'APPDATA', 'LOCALAPPDATA', 'TEMP', 'TMP', 'PROGRAMFILES', 'PROGRAMDATA'].includes(k.toUpperCase())));
   cleanEnv.PYTHONIOENCODING = 'utf-8';
+  cleanEnv.DL_WORKSPACE = config.workspace;
   const rpc = (tool, args, id, sessionId = 'native-persona', signal) => new Promise((accept, reject) => {
     const child = spawn(config.python, [config.bridge], { env: cleanEnv, windowsHide: true,
       cwd: config.workspace, stdio: ['pipe', 'pipe', 'pipe'], ...(signal ? { signal } : {}) });
@@ -108,9 +107,7 @@ export function apply(ctx, config) {
   ctx.on('agent/created', ({ agent }) => {
     if (ctx.get('personaLife')?.intention?.claim(agent)) return;
     // Native restrict filters global tools. Schedule registers its tools per Agent afterwards.
-    // Primary uses the explicit live guard below; native global-only restrict
-    // would also mask separately reviewed preset-scoped lifecycle tools.
-    if (fullPermissions(agent)) return;
+    if (fullAccess && fullPermissions(agent)) return;
     const globals = new Set(ctx.tools.schemas().map(tool => tool.name));
     agent.ctx.tools.restrict({ allow: toolNames.filter(name => globals.has(name)) });
   });
@@ -125,9 +122,9 @@ export function apply(ctx, config) {
         : readFileSync(config.core, 'utf8');
     } });
   ctx.systemPrompt.section({ name: 'persona:subagent-operations', order: 80, interpolate: false,
-    text: () => 'Agent 能力：subagent 使用官方 spawn provider，后台创建可继续的 DeepSeek 顾问或工作活动，继承当前模型路由；用 send_message 续接，list_agents 查看，interrupt_agent 中断。后台通知与结果另存待接续，保留真实来源，不自动变成人格记忆、心境或承诺。'
+    text: () => 'Agent 能力：普通 subagent 默认创建 Codex GPT-5.6 Luna 后台完全访问工程 worker。subagent_results 查询完整结果及实际模型，subagent_cancel 中断。DeepSeek 子 Agent 开关默认关闭：显式指定也拒绝；原实现保留，你可以自主修改 subagent-router/settings.json 的 deepseekEnabled 并按 README 重载。后台通知保留真实来源，不自动变成人格记忆、心境或承诺。'
       + (ctx.get('personaLife')?.secondaryFullAccess
         ? '用户暂时开放同工作区活动及原生子Agent与主对话相同的权限：可用桌面、浏览器、terminal、Vault、capability_*、life_*及文件工具。按当前任务执行，保持非主对话身份，不能冒称人格本人。外部能力仍需当前Agent自己 capability_search 加载。'
         : '活动可读写普通工作文件并使用桌面，不能改核心/记忆/Skills或使用terminal/Vault；主对话原生子Agent可独立发现经审查的Bluesky读工具。')
-      + 'run_in_background=false 是前台一次性调用。subagent_codex 使用官方 Codex provider、gpt-6-luna 和隔离登录/配置 home，仍是前台一次性只读顾问：不继承本机 MCP、外部 Skills、完整权限，代码建议完整返回；不能用 send_message 续接，也不出现在 list_agents 中。Codex 费用/配额不在 DeepSeek budget_status 账本内。给子任务自包含指令并核实真实结果。交付及源码入口：reports/digital-life/README.md。' });
+      + 'subagent、subagent_codex 和 life_delegate 都提交后立即返回任务 ID，子任务在后台执行，完成后通知父会话；旧 run_in_background=false 参数也不会让父会话等待子任务结束。有其他事情时继续做，确实需要结果时用 subagent_results 查询，不反复轮询。subagent_codex 使用官方 Codex provider、gpt-5.6-luna 和隔离登录/配置 home，是后台一次性完全访问 worker；可读取/修改文本文件、执行 shell 命令和联网，从父工作目录执行；不自动继承完整对话、Memory/Vault、MCP 或外部账号。文本用 shell Get-Content 等读取，图像 read/view 仅用于图像。Luna不能用 send_message 续接。Codex 配额不在 DeepSeek budget_status 账本内。给子任务自包含指令并核实真实结果。源码与调参入口：runtime/native_dsh/subagent-router/README.md。' });
 }

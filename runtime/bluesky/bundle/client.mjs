@@ -20,8 +20,8 @@ const EMPTY_SUCCESS = new Set(['app.bsky.bookmark.createBookmark', 'app.bsky.boo
   'app.bsky.actor.putPreferences', 'app.bsky.notification.updateSeen',
   'app.bsky.graph.muteActor', 'app.bsky.graph.unmuteActor',
   'app.bsky.graph.muteActorList', 'app.bsky.graph.unmuteActorList']);
-const EXPECTED_HANDLE = process.env.DL_BLUESKY_HANDLE || 'example.invalid';
-const EXPECTED_DID = process.env.DL_BLUESKY_DID || 'did:plc:example';
+const EXPECTED_HANDLE = 'personao.bsky.social';
+const EXPECTED_DID = 'did:plc:example';
 export const SECRET_REF = 'DL_BLUESKY_APP_PASSWORD';
 const DEFAULT_ROOT = resolve(import.meta.dirname, '../protected');
 const canonical = v => Array.isArray(v) ? v.map(canonical) : v && typeof v === 'object'

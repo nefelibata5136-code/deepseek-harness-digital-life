@@ -21,7 +21,7 @@ const rows = parse(await readFile(resolve(here, 'home/profiles/persona/cordis.pa
 const declared = rows.find(r => r.id === 'persona-preset-declaration').config.plugins.find(p => p.id === 'persona-resident-v1');
 assert.equal(declared.name, pathToFileURL(resolve(here, 'digital-life/resident.mjs')).href, 'Verify formal preset module resolution');
 const residentEntry = { ...declared, config: { ...declared.config, workspace } };
-const overlays = [{ id: 'persona-preset-declaration', config: {
+const overlays = [{id:'workspace-foundation',config:{python:process.env.DL_PYTHON||'python',workspace,store:resolve(root,'versions'),readRoots:[root],fullAccess:true}},{ id: 'persona-preset-declaration', config: {
   ...rows.find(r => r.id === 'persona-preset-declaration').config, plugins: [residentEntry] } }];
 process.env.DEEPSEEK_API_KEY = 'offline-placeholder-not-a-secret';
 const queue = [], wires = [];
@@ -70,7 +70,7 @@ try {
   const { agent } = await ctx.sessionController.resolveAgent(primary);
   assert.equal(ctx.agentPresets.composedPreset(agent.ctx), 'persona');
   assert((await ctx.agentPresets.readDocument('persona')).content.includes('resident.mjs'));
-  assert(agent.ctx.tools.schemas(agent).some(t => t.name === 'life_continue'), 'Preset lifecycle tools actually mounted: '+JSON.stringify({composition:await ctx.agentPresets.compositionInventory(),authority:ctx.personaLife.isAuthority(agent),capability:ctx.personaLife.residentCapability,names:agent.ctx.tools.schemas(agent).map(t=>t.name)}));
+  assert(agent.ctx.tools.schemas(agent).some(t => t.name === 'life_continue'), 'Preset lifecycle tools actually mounted');
   await ctx.personaLife.store.configure({ residentEnabled: true });
   await ctx.personaLife.store.appendPending({ id: 'offline-candidate', kind: 'subagent', sourceSessionId: randomUUID(),
     text: '候选 A：可读 audit.txt，之后可自由决定是否做候选 B。' });

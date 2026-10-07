@@ -4,7 +4,7 @@ import { mkdir, readFile, writeFile, realpath, stat } from 'node:fs/promises';
 import { resolve, relative, isAbsolute, extname, basename } from 'node:path';
 const require = createRequire(new URL('../../native_dsh/package.json', import.meta.url));
 const fail = code => { throw Object.assign(new Error(code), { code }); };
-const WORKSPACE = (process.env.DL_WORKSPACE || '.local/workspace');
+const WORKSPACE = '.local/workspace';
 const assetId = id => /^[a-f0-9-]{36}$/.test(id ?? '') ? id : fail('INVALID_ASSET_ID');
 async function sourceFile(input, extensions, maxBytes) {
   if (isAbsolute(input) || input.split(/[\\/]/).some(p => p === '..' || p.startsWith('.'))) fail('USE_ORDINARY_WORKSPACE_RELATIVE_MEDIA_PATH');

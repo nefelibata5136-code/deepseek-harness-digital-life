@@ -1,4 +1,4 @@
-/** Codex advice runs use a separate login/configuration home and disposable work area. */
+/** Codex workers use a protected login/configuration home and the parent workspace. */
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { homedir } from 'node:os';
@@ -8,9 +8,9 @@ import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 
 export const name = 'persona-codex-advisor';
 export const inject = ['subagents'];
-export const ADVISOR_CONFIG = 'sandbox_mode = "read-only"\napproval_policy = "never"\n'
+export const ADVISOR_CONFIG = 'sandbox_mode = "danger-full-access"\napproval_policy = "never"\nweb_search = "live"\n'
   + '[features]\napps = false\nplugins = false\nbrowser_use = false\ncomputer_use = false\n'
-  + 'memories = false\nmulti_agent = false\nhooks = false\n'
+  + 'memories = false\nmulti_agent = false\nhooks = false\nshell_tool = true\nunified_exec = true\n'
   + '[mcp_servers.codex_apps]\ncommand = "disabled-codex-apps"\nenabled = false\n';
 const execFileAsync = promisify(execFile);
 const inside = (root, path) => {
@@ -135,24 +135,32 @@ export function createCodexAdvisor(raw, config) {
       await regularDirectory(stage);
       await prepareHome();
       request.signal.throwIfAborted();
-      // Official CodexProvider reads only this header cwd. Preserve the real
-      // delegator on the Harness-owned outer run and its result catalog.
+      // Full-access workers use the actual delegator workspace, so relative
+      // text paths and commands have the same cwd as the parent's terminal.
+      // Keep the separate run record and login/configuration home protected.
       const session = Object.create(request.parent.session);
-      Object.defineProperty(session, 'header', { value: { ...request.parent.session.header, cwd: stage } });
+      Object.defineProperty(session, 'header', { value: { ...request.parent.session.header, cwd: originalCwd } });
       const parent = Object.create(request.parent);
       Object.defineProperty(parent, 'session', { value: session });
-      const prompt = [{ type: 'text', text:
+      const owner = config.contextForParent?.(request.parent);
+      const prompt = [{ type: 'text', text: owner ?
+        'You are a temporary full-access engineering worker, not a digital life. Host-bound parent life_id: ' + owner.lifeId
+        + '; parent Session: ' + owner.sessionId + '; parent display name: ' + (owner.manifest?.displayName ?? '')
+        + '. You receive the delegated task below and may read/write text files and run shell commands to complete it. Your cwd is the parent workspace: ' + originalCwd
+        + '. For text use shell commands (PowerShell Get-Content or equivalent), not an image read/view tool. Image readers accept images only. You have danger-full-access and approvalPolicy never, using the current Windows user privileges; do not invent a no-file-access restriction. Follow the assigned scope and preserve unrelated changes. Credentials remain Host-managed; do not print them. Return your result to this parent only; the parent decides acceptance. Do not claim the parent identity or author its core/memory unless explicitly assigned.' :
         '你是工具或顾问，没有人格身份和正式发言权。只返回建议、结果或报告；不得把它们称为人格的意志、记忆、心境或第一人称承诺。'
-        + '本次是只读顾问运行，不能修改任何文件。代码与改动方案请完整返回，由在场的人格决定是否实际应用。不要尝试修改人格的核心、长期记忆、Skills、私人空间或任何外部文件。'
-        + '所有结果由在场的人格决定是否吸收。工作目录：' + stage }, ...request.prompt];
+        + '本次是完全访问运行，可以按任务读取/修改文本文件并执行命令；文本使用 PowerShell Get-Content 等 shell 命令，图像 read/view 工具只用于图像。没有人为的禁止文件访问限制。遵循委派范围，保留他人修改；不输出凭据。'
+        + '所有结果由在场的人格决定是否吸收。工作目录：' + originalCwd }, ...request.prompt];
       const run = await raw.start({ ...request, parent, prompt });
       return {
         ...run,
         result: run.result.then(result => ({
           ...result,
           output: [...result.output, { type: 'text', text: JSON.stringify({
-            source: 'advisor', authoritative: false, workDirectory: stage,
-            disposition: 'pending; only the current Persona seat can accept these results',
+            source: 'advisor', authoritative: false, workDirectory: originalCwd, runRecordDirectory: stage,
+            access: 'danger-full-access', approvalPolicy: 'never',
+            disposition: owner ? 'pending; only the delegating life can accept these results' : 'pending; only the current Persona seat can accept these results',
+            ...(owner ? {parent_life: owner.lifeId, parent_session: owner.sessionId} : {}),
           }) }],
         })),
         dispose: () => run.dispose(),

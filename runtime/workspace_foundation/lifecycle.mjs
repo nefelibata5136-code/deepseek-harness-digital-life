@@ -89,11 +89,19 @@ export function mountWorkspaceVersions(ctx, config) {
 // All conversations may run. Only one file-capable tool body may execute at a time.
 // Take the existing durable begin/end snapshots around that operation, including
 // child Agents and external one-shot workers, rather than holding a turn-wide lock.
-const conversationTools = new Set(['budget_status', 'schedule_create', 'schedule_list',
+export const conversationTools = new Set(['budget_status', 'schedule_create', 'schedule_list',
   'schedule_update', 'schedule_delete', 'session_search', 'session_event_search',
   'session_trace', 'session_event_trace', 'session_event_read', 'task_list', 'task_create',
   'context_compact', 'capability_list', 'capability_search', 'subagent', 'send_message',
-  'list_agents', 'interrupt_agent']);
+  'list_agents', 'interrupt_agent', 'digital_life_state_read',
+  'list_files', 'search_history', 'skill', 'life_status', 'life_rest',
+  'life_configure', 'life_mental_write', 'life_pending_post', 'life_pending_list',
+  'life_pending_decide', 'life_sampling_configure', 'life_attention', 'life_continue',
+  // Social tools commit only in Host journals/stores. They never mutate the
+  // workspace and must remain available while a native file tool holds a lock.
+  'life_send_message','life_contact_list','life_event_read','life_receive_message',
+  'life_message_decide','life_action_result','life_message_timeline','observe_life',
+  'life_activity_publish','life_inbox_policy','life_turn_ack','life_stage_memory']);
 function mountFileOperationVersions(ctx, run) {
   let failure, owner=null, tail=Promise.resolve();
   const active=new Map();

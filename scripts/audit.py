@@ -24,10 +24,11 @@ def source_files():
    p=Path(directory)/name
    if p.is_symlink() or p.is_junction():raise ValueError('Links are not public source: '+str(p.relative_to(ROOT)))
    yield p.relative_to(ROOT).as_posix(),p.read_bytes()
-def scan(files):
+def scan(files,allow=None):
  findings=[];reviewed=[];count=0
- try:allow=json.loads((ROOT/'config/audit-exceptions.json').read_text('utf-8'))
- except FileNotFoundError:allow={}
+ if allow is None:
+  try:allow=json.loads((ROOT/'config/audit-exceptions.json').read_text('utf-8'))
+  except FileNotFoundError:allow={}
  for name,data in files:
   count+=1
   if Path(name).suffix.lower() in PROHIBITED or (Path(name).name.startswith('.env') and Path(name).name!='.env.example'):
@@ -53,7 +54,8 @@ def main():
   commits=git('rev-list','--all').decode().splitlines();results=[]
   for commit in commits:
    names=git('ls-tree','-rz','--name-only',commit).decode().split('\0')
-   r=scan((n,git('show',commit+':'+n)) for n in names if n);r['commit']=commit;results.append(r)
+   allow=json.loads(git('show',commit+':config/audit-exceptions.json'))
+   r=scan(((n,git('show',commit+':'+n)) for n in names if n),allow);r['commit']=commit;results.append(r)
   result={'passed':all(r['passed'] for r in results),'commits':len(commits),'results':results}
  print(json.dumps({'mode':a.mode,**result},ensure_ascii=False,indent=2));return 0 if result['passed'] else 1
 if __name__=='__main__':sys.exit(main())

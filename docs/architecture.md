@@ -1,5 +1,8 @@
 # Architecture
 
+This document describes the retained v0.1 single-persona compatibility composition.
+For v0.2 World, independent workers and owner routing, see the root README and code-guide.md.
+
 This is a Cordis composition over official DSH 0.2.0-rc.2, not another inference
 driver or handwritten Agent loop.
 

@@ -1,0 +1,20 @@
+import {writeFile,mkdir} from 'node:fs/promises';
+import {existsSync} from 'node:fs';
+import {resolve,join} from 'node:path';
+import {registerProfile,withManager,approveProfile,readEntry} from '../native_dsh/capabilities/profiles.mjs';
+import {worldSnapshot} from '../native_dsh/multi-life/supervisor/deployment.mjs';
+import {moltbookCredentialRef} from './bindings.mjs';
+const m=Object.values(worldSnapshot().lives).find(m=>m.kind==='legacy');
+const root=m.deployment.capabilities,dir=join(root,'moltbook'),ref=moltbookCredentialRef(m.lifeId);
+if(existsSync(dir))throw Error('EXISTING_PROFILE_PRESERVED_INSPECT_BEFORE_CHANGES');
+await registerProfile(root,{id:'moltbook',kind:'plugin',description:'Moltbook 外部 Agent 社区：自主浏览、搜索、发帖、评论和关注；本人独立凭据，无自动心跳。当前私信 API 返回404，未开放。',credentialRefs:[ref]});
+const bundle=resolve(import.meta.dirname,'bundle');
+const installed=await withManager(root,'moltbook',manager=>manager.installBundle(bundle,{enabled:false}));
+if(installed.application==='failed')throw Error('OFFICIAL_BUNDLE_INSTALL_FAILED');
+await withManager(root,'moltbook',manager=>manager.setBundleEnabled(installed.bundle,true));
+// Official profile patch, after bundle layer: fixed references; no secret value.
+const config={lifeId:m.lifeId,credentialRef:ref,stateRoot:join(dir,'state')};
+await writeFile(join(dir,'cordis.patch.yml'),'- id: digital-life-moltbook\n  config:\n'+Object.entries(config).map(([k,v])=>'    '+k+': '+JSON.stringify(v)).join('\n')+'\n');
+const approved=await approveProfile(root,'moltbook');
+await mkdir(config.stateRoot,{recursive:true});
+console.log(JSON.stringify({life_id:m.lifeId,profile:dir,config,approved,installed_bundle:installed.bundle,enabled:false}));

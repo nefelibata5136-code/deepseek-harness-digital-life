@@ -15,6 +15,7 @@ from authority import Authority, BudgetDenied, SHANGHAI, HERE
 NOW = datetime(2026,10,4,13,tzinfo=SHANGHAI)
 CONFIG = json.loads((HERE/'config.json').read_text(encoding='utf-8'))
 CONFIG['stop_on_unknown_usage'] = True
+CONFIG['budget_limits_enabled'] = True
 
 def args(i='one', output=16384):
     return dict(attempt_id=i,request_id='request',session_id='session',purpose='agent-loop',
@@ -43,6 +44,26 @@ class Tests(unittest.TestCase):
         self.authority.config['daily_limit_nano_cny'] = 1
         with self.assertRaises(BudgetDenied):
             self.authority.reserve(args('over-limit'))
+
+    def test_permanent_limits_off_retains_accounting_across_dates(self):
+        self.authority.config['budget_limits_enabled'] = False
+        self.authority.config['daily_limit_nano_cny'] = 1
+        self.authority.config['price_valid_through'] = '2026-10-01'
+        self.authority.reserve(args('unknown-off'))
+        self.authority.unknown('unknown-off')
+        with ThreadPoolExecutor(max_workers=3) as pool:
+            list(pool.map(lambda i:self.authority.reserve(args('parallel-'+str(i))),range(3)))
+        state=self.authority.status()
+        self.assertEqual(state['available'],0)
+        self.assertFalse(state['daily_limit_enforced'])
+        self.assertFalse(state['stop_on_unknown_usage'])
+        self.assertIsNone(state['stop_reason'])
+        self.assertFalse(state['conservative'])
+        self.authority.settle(dict(attempt_id='parallel-0',usage=usage(output=20000)))
+        self.assertGreater(self.authority.status()['settled'],0)
+        self.now += timedelta(days=3)
+        self.assertFalse(self.authority.status()['daily_limit_enforced'])
+        self.authority.reserve(args('next-day-off'))
 
     def test_temporary_maintenance_pauses_new_calls(self):
         self.authority.config['maintenance_pause'] = True
@@ -188,7 +209,7 @@ class Tests(unittest.TestCase):
         self.assertEqual(self.authority.status('2026-10-07')['settled'],0)
 
     def test_crash_restart_no_release(self):
-        source = 'from authority import Authority; from datetime import datetime; import os; a=Authority('+repr(str(self.db))+', now=lambda: datetime.fromisoformat('+repr(NOW.isoformat())+')); req='+repr(args('crashed'))+'; req["owner_pid"]=os.getpid(); a.reserve(req); os._exit(17)'
+        source = 'from authority import Authority; from datetime import datetime; import os; a=Authority('+repr(str(self.db))+',config='+repr(CONFIG)+',now=lambda:datetime.fromisoformat('+repr(NOW.isoformat())+')); req='+repr(args('crashed'))+'; req["owner_pid"]=os.getpid(); a.reserve(req); os._exit(17)'
         p=subprocess.run([sys.executable,'-c',source],cwd=HERE,capture_output=True)
         self.assertEqual(p.returncode,17)
         reopened=Authority(self.db,config=copy.deepcopy(CONFIG),now=lambda:NOW)

@@ -44,10 +44,7 @@ const scanMsPerMiB=(performance.now()-start)/20/(Buffer.byteLength(ordinary)/104
 process.env.DEEPSEEK_API_KEY=secret;
 const fake=fixtureTransport(workspace);
 globalThis.fetch=fake.transport;
-const sessionId=randomUUID();const ctx=await bootNative({sessionId,testRoot:root,overlays:[{
- id:'workspace-foundation',config:{workspace,store:resolve(root,'versions'),readRoots:[root],
- python:process.env.DL_PYTHON||'python',fullAccess:true}
-}]});
+const sessionId=randomUUID();const ctx=await bootNative({sessionId,testRoot:root,overlays:[{id:'workspace-foundation',config:{python:process.env.DL_PYTHON||'python',workspace,store:resolve(root,'versions'),readRoots:[root],fullAccess:true}}]});
 try {
  await ctx.sessionController.create({sessionId,cwd:workspace});
  const {agent}=await ctx.sessionController.resolveAgent(sessionId);

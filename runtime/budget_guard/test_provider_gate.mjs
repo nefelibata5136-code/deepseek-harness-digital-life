@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync, spawn } from 'node:child_process';
-import { createBudgetGate as actualBudgetGate, pythonAuthority, mountBudgetGuard } from './provider_gate.mjs';
+import { createBudgetGate as actualBudgetGate, pythonAuthority, mountBudgetGuard, inject as budgetInject } from './provider_gate.mjs';
 import { DeepSeekAdapter, resolveAdapterOptions } from '../native_dsh/node_modules/@deepseek-ai/dsh-llm-deepseek/lib/index.js';
 import { Context } from '../native_dsh/node_modules/@deepseek-ai/cordis/lib/index.js';
 import { LlmRuntime, createUserMessage } from '../native_dsh/node_modules/@deepseek-ai/dsh-llm/lib/index.js';
@@ -41,6 +41,7 @@ async function fixture(t, {limit, conservative, stopUnknown=true}={}) {
   const config=JSON.parse(await readFile(join(HERE,'config.json'),'utf8'));
   // A fixed fixture budget, independent of the user's live daily allowance.
   delete config.daily_limit_suspended_on;
+  config.budget_limits_enabled=true;
   config.daily_limit_nano_cny=10000000000;
   config.stop_on_unknown_usage=stopUnknown;
   if(limit) config.daily_limit_nano_cny=limit;
@@ -163,6 +164,54 @@ test('unknown endpoint, direct calls, other model fail before provider',async t=
   const extension=wire();extension.body=JSON.stringify({...JSON.parse(extension.body),n:2});
   await assert.rejects(gate.within(context('direct'),()=>gate.fetch(API_URL,extension)));
   assert.equal(received,0);
+});
+
+test('Cordis plugin child declares agents for trusted exact Session attribution',async t=>{
+  const ctx=new Context(),sessionId='TEST-exact-session',agent={session:{id:sessionId}},scopes=[];
+  // Production agents is owned by a separate plugin, not the unrestricted
+  // root Context. A root-provided service would hide the missing injection.
+  await ctx.plugin({name:'TEST-native-agents-provider',apply:child=>child.provide('agents',{get:id=>{assert.equal(id,sessionId);return agent;}})});
+  ctx.provide('personaCostIdentity',{resolve:(options,actualAgent)=>{
+    assert.equal(options.sessionId,sessionId);assert.equal(actualAgent,agent);
+    return {life_id:'life-TEST-trusted',run_id:'TEST-native-turn',request_id:'TEST-native-rpc',reason:'developer_test',source_kind:'developer-test',provenance:'trusted_native_source'};
+  }});
+  const gate={within:async(scope,fn)=>{scopes.push(scope);return fn();},drain:async()=>{}};
+  const options={provider:'deepseek-official',model:'deepseek-flash',sessionId,requestId:'TEST-options-rpc'};
+  const consume=async()=>{const chunks=[];for await(const chunk of ctx.waterfall('llm/stream',options,()=> (async function*(){yield {type:'TEST-local-only'};})()))chunks.push(chunk);return chunks;};
+  const missing=await ctx.plugin({name:'TEST-undeclared-budget-child',inject:[],apply:child=>mountBudgetGuard(child,gate)});
+  await assert.rejects(consume,/cannot get property "agents" without inject/);
+  assert.equal(scopes.length,0);await missing.dispose();
+  assert.deepEqual(budgetInject,['agents']);
+  await ctx.plugin({name:'TEST-declared-budget-child',inject:budgetInject,apply:child=>mountBudgetGuard(child,gate)});
+  assert.deepEqual(await consume(),[{type:'TEST-local-only'}]);
+  assert(scopes.every(scope=>scope.sessionId===sessionId&&scope.requestId==='TEST-native-rpc'&&scope.attribution.life_id==='life-TEST-trusted'));
+  assert(scopes.every(scope=>!Object.hasOwn(scope.attribution,'request_id')));
+  await ctx.fiber.dispose();
+});
+
+test('production budget plugin apply with Cordis injection uses only local stub wire',async t=>{
+  const f=await fixture(t),body=await sse().text();
+  // apply makes global fetch immutable. Exercise it in a fresh process while
+  // replacing its captured transport with an explicit local Response fixture.
+  const source=`
+    import assert from 'node:assert/strict';
+    import * as budget from ${JSON.stringify(new URL('./provider_gate.mjs',import.meta.url).href)};
+    import {Context} from ${JSON.stringify(new URL('../native_dsh/node_modules/@deepseek-ai/cordis/lib/index.js',import.meta.url).href)};
+    let transportCalls=0;globalThis.fetch=async()=>{transportCalls++;return new Response(${JSON.stringify(body)},{headers:{'content-type':'text/event-stream'}});};
+    const ctx=new Context(),agent={session:{id:'TEST-production-apply-session'}};
+    await ctx.plugin({name:'TEST-native-agents-provider',apply:child=>child.provide('agents',{get:id=>{assert.equal(id,agent.session.id);return agent;}})});
+    ctx.provide('personaCostIdentity',{resolve:(options,found)=>{assert.equal(found,agent);return {life_id:'life-TEST-injection',run_id:'TEST-native-run',request_id:'TEST-native-rpc',source_kind:'developer-test',reason:'developer_test',provenance:'trusted_native_source'};}});
+    await ctx.plugin(budget,{python:${JSON.stringify(PYTHON)},db:${JSON.stringify(f.db)}});
+    assert.equal(Object.getOwnPropertyDescriptor(globalThis,'fetch').writable,false);
+    const options={provider:'deepseek-official',model:'deepseek-flash',sessionId:agent.session.id};
+    const stream=ctx.waterfall('llm/stream',options,()=> (async function*(){const response=await fetch(${JSON.stringify(API_URL)},${JSON.stringify(wire())});yield await response.text();})());
+    for await(const value of stream)assert(value.includes('message_stop'));
+    assert.equal(transportCalls,1);await ctx.fiber.dispose();
+    console.log(JSON.stringify({passed:true,local_stub_transport_calls:transportCalls,paid_calls:0,real_credential_reads:0}));
+  `;
+  const result=spawnSync(process.execPath,['--input-type=module','-e',source],{encoding:'utf8',windowsHide:true,timeout:30000});
+  assert.equal(result.status,0,result.stderr);assert.deepEqual(JSON.parse(result.stdout),{passed:true,local_stub_transport_calls:1,paid_calls:0,real_credential_reads:0});
+  assert.equal((await f.rpc('status')).settled,280000);
 });
 
 test('real Cordis waterfall routes all call purposes through same wire gate',async t=>{

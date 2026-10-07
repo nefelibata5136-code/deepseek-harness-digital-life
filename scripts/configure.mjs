@@ -2,7 +2,10 @@ import { readFile, mkdir, writeFile, access } from 'node:fs/promises';
 import { resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
+import {existsSync} from 'node:fs';
 export const root = fileURLToPath(new URL('../', import.meta.url));
+const localPython=resolve(root,process.platform==='win32'?'.venv/Scripts/python.exe':'.venv/bin/python');
+if(!process.env.DL_PYTHON&&existsSync(localPython))process.env.DL_PYTHON=localPython;
 export const data = resolve(root, '.local');
 export const workspace = resolve(data, 'workspace');
 export async function configure() {

@@ -1,0 +1,31 @@
+import {readFile,mkdir,writeFile} from 'node:fs/promises';
+import {createRequire} from 'node:module';
+import {fileURLToPath} from 'node:url';
+import assert from 'node:assert/strict';
+const require=createRequire(import.meta.url);
+const {chromium}=createRequire(new URL('../native_dsh/package.json',import.meta.url))('playwright');
+const auth=JSON.parse(await readFile(new URL('../desktop_persona_verify/.auth.json',import.meta.url),'utf8'));
+const browser=await chromium.launch({headless:true,channel:'chrome'});
+try {
+ const context=await browser.newContext({viewport:{width:1280,height:850},deviceScaleFactor:1.5});
+ await context.route('**/api/**',r=>r.request().method()==='GET'?r.continue():r.abort());
+ const page=await context.newPage();const errors=[];page.on('response',async r=>{if(r.url().includes('client.js')){const t=await r.text().catch(()=> '');console.log(JSON.stringify({clientResponse:true,newCode:t.includes('yb-wakeup')}));}});page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(auth.url);
+ if(await page.getByRole('button',{name:'继续',exact:true}).count())await page.getByRole('button',{name:'继续',exact:true}).click();
+ await page.getByRole('textbox',{name:'给人格的消息'}).waitFor();
+ const tasks=await page.evaluate(async()=>await (await fetch('api/persona.tasks')).json());
+ const target=tasks.tasks.find(t=>t.sessionId==='6f54282c-f465-51f2-86fe-7a39bc84bbe4');
+ assert(target);await page.getByRole('button',{name:target.title,exact:true}).click();
+ console.log(JSON.stringify(await page.evaluate(async()=>{const h=await(await fetch('api/persona.historyState?sessionId=6f54282c-f465-51f2-86fe-7a39bc84bbe4')).json();return {running:h.running,interrupted:h.interrupted,wakeups:h.wakeups,selected:window.__personaDesktopState?.selectedSessionId};})));
+ await page.locator('.yb-wakeup').waitFor();
+ const text=await page.locator('.yb-wakeup').innerText();assert(text.includes('00:40:00'));assert(text.includes('北京时间'));
+ assert((await page.locator('.yb-root').innerText()).includes('上一轮未正常结束'));
+ assert.equal(await page.locator('.yb-run').count(),0);
+ const h=await page.evaluate(async()=>await (await fetch('api/persona.historyState?sessionId=6f54282c-f465-51f2-86fe-7a39bc84bbe4')).json());
+ assert.equal(h.running,false);assert.equal(h.interrupted,true);
+ await mkdir(new URL('../../reports/wakeup-status/',import.meta.url),{recursive:true});
+ await page.screenshot({path:fileURLToPath(new URL('../../reports/wakeup-status/live.png',import.meta.url)),scale:'css'});
+ assert.deepEqual(errors,[]);
+ const report={passed:true,observedAt:new Date().toISOString(),wakeups:h.wakeups,interrupted:h.interrupted,running:h.running,pageErrors:errors,viewport:await page.evaluate(()=>({width:innerWidth,height:innerHeight,dpr:devicePixelRatio})),realPromptsSubmitted:0};
+ await writeFile(new URL('../../reports/wakeup-status/verification.json',import.meta.url),JSON.stringify(report,null,2));console.log(JSON.stringify(report));
+}finally{await browser.close();}

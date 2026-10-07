@@ -6,14 +6,18 @@ import { fileURLToPath } from 'node:url';
 import { boot, loadProfileDirectory, createRuntimeResolution, PluginPackages } from '@deepseek-ai/dsh-app-boot';
 import { createKeyOutputGuard } from '../key_output_guard/guard.mjs';
 import {mountMainRecovery} from './recovery/main.mjs';
+import {existsSync} from 'node:fs';
 export const here = dirname(fileURLToPath(import.meta.url));
-export async function bootNative({ sessionId, testRoot, budgetDb, overlays = [] } = {}) {
+export async function bootNative({ sessionId, testRoot, budgetDb, overlays = [], multiLife } = {}) {
   if (!sessionId) throw new Error('Explicit Session ID required');
+  let productionOwner;
+  if(!testRoot&&!multiLife&&existsSync(resolve(here,'../multi_life_supervisor/supervisor/control.json'))) {
+    const {prepareProductionLegacyOwner}=await import('./multi-life/supervisor/legacy-bootstrap.mjs');
+    productionOwner=await prepareProductionLegacyOwner();multiLife=productionOwner;
+  }
   process.env.DSH_HOME = resolve(here, 'home');
   process.env.DSH_TELEMETRY_DISABLED = '1';
   process.env.DL_SESSION_ID = sessionId;
-  process.env.DL_WORKSPACE = testRoot ? resolve(testRoot, 'workspace') : resolve(process.env.DL_WORKSPACE || '.local/workspace');
-  process.env.DL_DATA = testRoot ? resolve(testRoot) : resolve(process.env.DL_DATA || '.local');
   process.env.TZ = 'Asia/Shanghai';
   const keyOutputGuard = createKeyOutputGuard({knownSecrets: [process.env.DEEPSEEK_API_KEY]});
   globalThis.fetch = keyOutputGuard.wrapTransport(globalThis.fetch);
@@ -53,13 +57,26 @@ export async function bootNative({ sessionId, testRoot, budgetDb, overlays = [] 
   await writeFile(rootConfig, '[]\n');
   const ctx = await boot('persona-host', rootConfig, patches, async ctx => {
     await ctx.plugin(PluginPackages, { resolution });
+    if(multiLife) {
+      const {prepareLegacyOwnership}=await import('./multi-life/platform/legacy-host.mjs');
+      prepareLegacyOwnership(ctx,{...multiLife,nativeRoot:testRoot?resolve(testRoot,'sessions'):resolve(here,'home/sessions')});
+    }
   });
   if (!ctx.get('personaHost') || !ctx.get('workspaceFoundation') || !ctx.get('credentials'))
     throw new Error('Host composition did not activate');
   if (!ctx.get('personaLife') || !ctx.subagents.getProvider('codex'))
     throw new Error('Digital life authority or isolated advisor did not activate; refusing partial mode');
+  if(multiLife&&!ctx.get('multiLifeOwnership'))throw new Error('Explicit legacy owner boundary did not activate');
+  if(productionOwner) {
+    const {mountProductionLegacyBoundaries}=await import('./multi-life/supervisor/legacy-bootstrap.mjs');
+    await mountProductionLegacyBoundaries(ctx,productionOwner);
+  }
   keyOutputGuard.mount(ctx);
   await mountMainRecovery(ctx,{primary:sessionId,workspace:testRoot?resolve(testRoot,'workspace'):resolve(process.env.DL_WORKSPACE || '.local/workspace'),
     ...(testRoot?{root:resolve(testRoot,'recovery-state')}:{})});
+  if(!testRoot) {
+    const {mountProductionLegacy}=await import('./multi-life/platform/production-legacy.mjs');
+    await mountProductionLegacy(ctx,{authoritySessionId:sessionId,migrationRoot:resolve(here,'../..')});
+  }
   return ctx;
 }

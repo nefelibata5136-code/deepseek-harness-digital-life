@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "human": {"id": "human:maintainer", "name": "Maintainer"},
+  "port": 19842,
+  "operatorPort": 19843,
+  "workerPortBase": 19844,
+  "lives": [{"slot": "A", "name": "生命 A"}, {"slot": "B", "name": "生命 B"}],
+  "residentEnabled": false,
+  "officialBillingProducer": false,
+  "memoryWorkspaceId": "YOUR_DASHSCOPE_WORKSPACE_ID"
+}

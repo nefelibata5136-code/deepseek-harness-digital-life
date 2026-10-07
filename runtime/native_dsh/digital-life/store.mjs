@@ -6,6 +6,10 @@ const DEFAULTS = Object.freeze({ residentEnabled: false, intervalMs: 7200000, di
   intentionSamplingEnabled: false, intentionSamplingConsent: null });
 const CLOCK_DEFAULTS = Object.freeze({ lastWakeAt: null, nextWakeAt: null, lastRestAt: null, lastOutcome: null });
 const clone = (value) => structuredClone(value);
+// These exact host-generated IDs belonged to the removed native-output mirror.
+// Mark the read projection only; original records and Agent decisions stay intact.
+const legacyGenerated = record => record.id === `session:${record.sourceSessionId}:turn:${record.turn}`
+  || (typeof record.id === 'string' && record.id.startsWith(`codex:${record.sourceSessionId}:`));
 const nonempty = (value, label) => {
   if (typeof value !== 'string' || !value.trim()) throw new Error(`${label} must be a nonempty string`);
   return value;
@@ -167,17 +171,19 @@ export class DigitalLifeStore {
     });
   }
 
-  _pendingRecords(includeResolved = false) {
+  _pendingRecords(includeResolved = false, includeLegacy = false) {
     const latest = new Map(this.decisions.map((decision) => [decision.id, decision]));
-    return this.pending.map((record) => ({ ...record, resolution: latest.get(record.id) ?? null }))
+    return this.pending.filter(record => includeLegacy || !legacyGenerated(record))
+      .map((record) => ({ ...record, resolution: latest.get(record.id) ?? null,
+        ...(legacyGenerated(record) ? { legacy_generated: true, sourceUnverified: true } : {}) }))
       .filter((record) => includeResolved || !record.resolution || record.resolution.decision === 'deferred');
   }
 
-  listPending({ offset = 0, limit = 100, includeResolved = false } = {}) {
+  listPending({ offset = 0, limit = 100, includeResolved = false, includeLegacy = false } = {}) {
     return this._serial(() => {
       this._ready();
       if (!Number.isSafeInteger(offset) || offset < 0 || !Number.isSafeInteger(limit) || limit < 1) throw new Error('offset must be nonnegative and limit must be positive integers');
-      const records = this._pendingRecords(includeResolved);
+      const records = this._pendingRecords(includeResolved, includeLegacy);
       return clone({ items: records.slice(offset, offset + limit), total: records.length, offset, limit, hasMore: offset + limit < records.length });
     });
   }
@@ -207,7 +213,7 @@ export class DigitalLifeStore {
       this._ready();
       const mentalActive = !!this.mental?.text && (!this.mental.expiresAt || new Date(this.mental.expiresAt).getTime() > this.now());
       return clone({ identity: 'persona', clock: this.clock, settings: this.config, pendingCount: this._pendingRecords().length,
-        totalExperiences: this.pending.length, decisionsCount: this.decisions.length,
+        totalExperiences: this.pending.length, legacyGeneratedCount: this.pending.filter(legacyGenerated).length, decisionsCount: this.decisions.length,
         mental: { present: mentalActive, writtenAt: this.mental?.writtenAt ?? null, expiresAt: this.mental?.expiresAt ?? null } });
     });
   }

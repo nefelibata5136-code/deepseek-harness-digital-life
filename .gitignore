@@ -45,3 +45,6 @@ reports/
 *.webp
 *.mp4
 *.bak
+
+runtime/multi_life_supervisor/
+*.local.*

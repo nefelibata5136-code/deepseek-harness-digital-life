@@ -1,0 +1,9 @@
+{
+  "name": "digital-life-moltbook",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Per-life Moltbook native tools with Host-owned credential bindings",
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } },
+  "scripts": { "test": "node --test client.test.mjs" }
+}

@@ -1,14 +1,18 @@
 // A Cordis lifecycle policy over the native loop, not another model driver.
 import { readFile, writeFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { resolve, relative } from 'node:path';
 import { defineTool } from '@deepseek-ai/dsh-tools';
 import { createUserMessage } from '@deepseek-ai/dsh-llm';
 import { DigitalLifeStore } from './store.mjs';
 import { approveProfile } from '../capabilities/profiles.mjs';
 import { desktopTools } from '../computer-host.mjs';
+const loadedSources=Object.freeze(Object.fromEntries(['plugin.mjs','store.mjs'].map(name=>
+  [name,createHash('sha256').update(readFileSync(resolve(import.meta.dirname,name))).digest('hex')])));
 
 export const inject = ['tools', 'agents', 'sessions', 'systemPrompt', 'sessionController', 'sessionQuery', 'fs', 'workspaceFoundation', 'personaTasks', 'personaHost'];
-export const lifeTools = ['life_attention', 'life_continue', 'life_sampling_configure', 'life_status', 'life_mental_write', 'life_working_write', 'life_pending_list',
+export const lifeTools = ['life_status', 'life_mental_write', 'life_working_write', 'life_pending_list',
   'life_pending_post', 'life_pending_decide', 'life_rest', 'life_configure', 'life_capability_accept'];
 export const activityTools = new Set(['read', 'read_source', 'write', 'edit', 'list_files', 'search_history',
   'session_search', 'session_event_search', 'session_trace', 'session_event_trace', 'session_event_read',
@@ -16,7 +20,7 @@ export const activityTools = new Set(['read', 'read_source', 'write', 'edit', 'l
   'subagent', 'send_message', 'list_agents', 'interrupt_agent', ...desktopTools]);
 const str = required => ({ type: 'string', ...(required ? { required: true } : {}) });
 const output = { schema: { type: 'json' }, render: (_args, value) => [{ type: 'text', text: JSON.stringify(value) }] };
-const activityIdentity = '你不是人格本人。你当前在非主对话中，是一个独立的工作活动或顾问；权限相同不代表身份相同。用自己的身份说明你执行的操作和结果，不冒称人格的第一人称、记忆、心境或承诺。结果保留本对话的 Session 来源，并分别保存到待接续，不自动融合成人格的状态。';
+const activityIdentity = '你不是人格本人。你当前在非主对话中，是一个独立的工作活动或顾问；权限相同不代表身份相同。用自己的身份说明你执行的操作和结果，不冒称人格的第一人称、记忆、心境或承诺。结果保留本对话的原生 Session 来源。需要本人接续的建议由你明确调用 life_pending_post 投递；普通活动结束不会自动复制成待接续，不自动融合成人格的状态。';
 const principles = `数字生命 / Persona：身份只有一个，活动可以很多，正式发言席位只有一个。
 你可以自主形成目标、行动、调用顾问、继续、延后、放弃，也可以什么都不做。存在不以产出为理由。空闲时过自己的生活，不默认找用户聊天。
 一次 Resident 醒来是睁眼：先感知实际经过的时间，看看自己的接续条和亲写心境，再决定是否行动。允许没有新念头、没有任务、没有报告，直接 life_rest 或安静结束。
@@ -83,31 +87,10 @@ export async function apply(ctx, config) {
   let failure, disposed = false, timer, waking = false;
   const turns = new Map();
   const wakeFacts = new WeakMap();
-  const capture = async (session, turn) => {
-    if (String(session.id) === primary || ctx.get('personaPrivateVault')?.isSensitive(session)) return;
-    const own = [...session.ownEvents()];
-    if (own.some(e => e.type === 'subagent/descriptor' && e.data.provider === 'persona-intention')) return;
-    const start = own.findLast(e => e.type === 'turn/start' && e.data.turn === turn);
-    if (!start || start.time < activation.since) return;
-    const boundary = own.find(e => e.seq > start.seq && e.type === 'turn/start')?.seq ?? Infinity;
-    const events = own.filter(e => e.seq > start.seq && e.seq < boundary);
-    const assistant = events.filter(e => ['assistant/message', 'assistant/attempt'].includes(e.type));
-    const text = assistant.flatMap(e => e.data.message?.content ?? [])
-      .filter(b => b.type === 'text').map(b => b.text).join('\n');
-    if (!text) return;
-    await store.appendPending({ id: `session:${session.id}:turn:${turn}`, kind: session.header.origin === 'subagent' ? 'subagent' : 'activity',
-      sourceSessionId: String(session.id), turn, seq: start.seq, text,
-      occurredAt: new Date(assistant.at(-1).time).toISOString(), observedAt: new Date().toISOString() });
-  };
-  // Recovery reads facts; it does not summarize, choose, or impersonate an author.
-  const recover = async () => {
-    for (const record of await ctx.personaTasks.allRecords()) {
-      if (record.header.id === primary) continue;
-      const opened = await ctx.sessionQuery.readSession(record.header.id);
-      const session = { id: opened.session.id, header: opened.session, ownEvents: () => opened.events };
-      for (const e of session.ownEvents()) if (e.type === 'turn/start') await capture(session, e.data.turn);
-    }
-  };
+  // Native Session/task/tool-result durability already retains activity output.
+  // Advice becomes a new input only when an author explicitly posts it.
+  const recover = async () => ({ delegated: 'native-session-task-continuation', automaticReplay: false,
+    legacyRecordsRetained: true, legacyListing: { tool: 'life_pending_list', includeLegacy: true } });
   const originalWrite = ctx.fs.writeText.bind(ctx.fs), originalEdit = ctx.fs.editText.bind(ctx.fs);
   for (const [method, original] of [['writeText', originalWrite], ['editText', originalEdit]]) {
     ctx.fs[method] = async (target, change, ...args) => {
@@ -140,15 +123,7 @@ export async function apply(ctx, config) {
   ctx.on('tools/execute', async (exec, next) => {
     if (failure) throw failure;
     // Also covers direct tool dispatch; filesystem attribution is never inferred from text.
-    return ctx.agents.withInitiator(exec.agent, async () => {
-      const result = await next();
-      if (exec.name === 'subagent_codex' && isAuthority(exec.agent)) {
-        await store.appendPending({ id: `codex:${exec.agent.session.id}:${exec.callId}`, kind: 'subagent',
-          sourceSessionId: String(exec.agent.session.id), text: JSON.stringify(result),
-          occurredAt: new Date().toISOString(), observedAt: new Date().toISOString() });
-      }
-      return result;
-    });
+    return ctx.agents.withInitiator(exec.agent, next);
   }, { prepend: true });
   const tool = (name, description, parameters, execute, seat = true) => ctx.tools.register(defineTool({ name, description, parameters, output,
     async execute(args, exec) { if (seat) requireSeat(exec); return execute(args, exec); } }));
@@ -169,8 +144,8 @@ export async function apply(ctx, config) {
     return store.appendPending({ id: `post:${exec.agent.session.id}:${exec.callId}`, kind: isAuthority(exec.agent) ? 'activity' : 'subagent',
       sourceSessionId: String(exec.agent.session.id), text: args.text, occurredAt: new Date().toISOString(), observedAt: new Date().toISOString() });
   }, false);
-  tool('life_pending_list', '分别读取待接续原文，完整分页；不自动合并或代表你的观点。',
-    { offset: { type: 'integer' }, limit: { type: 'integer' }, includeResolved: { type: 'boolean' } }, args => store.listPending(args));
+  tool('life_pending_list', '分页读取作者显式投递的待接续原文；includeLegacy 可只读查看旧自动生成的输出镜像及其来源未核实标记。原生活动历史通过 Session/task 接口保留。',
+    { offset: { type: 'integer' }, limit: { type: 'integer' }, includeResolved: { type: 'boolean' }, includeLegacy: { type: 'boolean' } }, args => store.listPending(args));
   tool('life_pending_decide', '有权限的对话标记接受、拒绝或暂留；保留原文、真实 Session 和决定记录，不自动写记忆或心境。',
     { id: str(true), decision: str(true), note: str(false) }, (args, exec) => store.resolvePending({ ...args, sessionId: String(exec.agent.session.id), callId: String(exec.callId) }));
   tool('life_configure', '管理自己正式 preset 的 Resident 开关、间隔和自写运行原则，原子更新并保留恢复版本；不改变单一身份和写入来源边界。',
@@ -248,20 +223,16 @@ export async function apply(ctx, config) {
       context('persona:pending-advice', JSON.stringify(pending)),
       ...(settings.directive ? [context('persona:self-preset-directive', settings.directive)] : [])] };
   }, { prepend: true });
-  // turn-stopping is an extension opportunity, not an actual end: the native
-  // preset may steer another activity in the same turn. Capture only committed
-  // boundaries, including interrupted child output, through the durable event.
+  // Clock tracks the actual primary turn boundary; output stays in its native
+  // Session and is never automatically converted into another pending input.
   ctx.on('session/event', (session, event) => {
-    if (event.type !== 'turn/end' || resolve(session.header.cwd ?? '') !== cwd) return;
+    if (event.type !== 'turn/end' || String(session.id) !== primary || resolve(session.header.cwd ?? '') !== cwd) return;
     void (async () => {
-      await capture(session, event.data.turn);
-      if (String(session.id) === primary) {
-        const clock = (await store.state()).clock;
-        const outcome = event.data.reason.kind === 'completed'
-          ? (clock.lastOutcome === 'rest' ? 'rest' : 'completed') : 'interrupted';
-        await store.saveClock({ lastRestAt: new Date(event.time).toISOString(), lastOutcome: outcome });
-        arm();
-      }
+      const clock = (await store.state()).clock;
+      const outcome = event.data.reason.kind === 'completed'
+        ? (clock.lastOutcome === 'rest' ? 'rest' : 'completed') : 'interrupted';
+      await store.saveClock({ lastRestAt: new Date(event.time).toISOString(), lastOutcome: outcome });
+      arm();
     })().catch(error => { failure = error; });
   });
   const tick = async () => {
@@ -297,11 +268,10 @@ export async function apply(ctx, config) {
   }
   ctx.provide('personaLife', { isAuthority, isReadDelegate, hasFullPermissions, secondaryFullAccess, protectedPath, store,
     wakeFacts: agent => structuredClone(wakeFacts.get(agent) ?? null),
-    status: async () => ({ ...(await store.status()), seatSessionId: primary, seatPresent: ctx.personaTasks.running().includes(primary), secondaryFullAccess,
+    status: async () => ({ ...(await store.status()), loaded_sources:loadedSources, seatSessionId: primary, seatPresent: ctx.personaTasks.running().includes(primary), secondaryFullAccess,
       resident: ctx.personaLife.residentCapability ?? null,
       stateBoard: ctx.personaLife.stateBoard ? { version: ctx.personaLife.stateBoard.version, primaryOnly: true, owners: ctx.personaLife.stateBoard.owner } : null }), tick, recover,
     assertHealthy() { if (failure) throw failure; } });
-  await recover();
   if (!(await store.state()).clock.lastWakeAt) {
     const record = (await ctx.personaTasks.allRecords()).find(r => r.header.id === primary);
     if (record) {

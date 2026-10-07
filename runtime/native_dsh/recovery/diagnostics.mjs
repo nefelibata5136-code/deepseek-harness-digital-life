@@ -1,5 +1,5 @@
 // Shared by main and standby; no Harness, account files or model dependencies.
-import {mkdir, writeFile, readdir, readFile} from 'node:fs/promises';
+import {mkdir, writeFile, readdir, readFile, rename} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {randomUUID, createHash} from 'node:crypto';
 export const stateRoot = resolve(process.env.DL_DATA || '.local', 'recovery');
@@ -40,17 +40,33 @@ export async function recordIncident(detail, root=process.env.DL_DIAGNOSTIC_ROOT
   record.category=classify(record);
   if(isContextWindowExceeded(record))record.errorCode='CONTEXT_WINDOW_EXCEEDED';
   await mkdir(resolve(root,'incidents'),{recursive:true});
-  await writeFile(resolve(root,'incidents',record.id+'.json'),JSON.stringify(record,null,2)+'\n',{flag:'wx',mode:0o600});
+  // Publish only complete records. Interrupted writes remain non-discoverable .tmp files.
+  const target=resolve(root,'incidents',record.id+'.json'), temporary=target+'.'+randomUUID()+'.tmp';
+  await writeFile(temporary,JSON.stringify(record,null,2)+'\n',{flag:'wx',mode:0o600});
+  await rename(temporary,target);
   return record;
 }
 export async function incidents({sessionId,limit=20,root=process.env.DL_DIAGNOSTIC_ROOT??stateRoot}={}) {
   let names;try{names=await readdir(resolve(root,'incidents'));}catch(e){if(e.code==='ENOENT')return [];throw e;}
   const items=[];
   for(const name of names.filter(n=>/^[a-f0-9-]{36}\.json$/.test(n))) {
-    const r=JSON.parse(await readFile(resolve(root,'incidents',name),'utf8'));
+    let r;
+    try {
+      r=JSON.parse(await readFile(resolve(root,'incidents',name),'utf8'));
+      if(!r||typeof r!=='object'||Array.isArray(r)||typeof r.observedAt!=='string')
+        throw new SyntaxError('Invalid incident record shape');
+    } catch(error) {
+      if(error.code==='ENOENT')continue;
+      if(!(error instanceof SyntaxError))throw error;
+      // Keep the original bytes. Report corruption without breaking Host health.
+      r={id:name.slice(0,-5),observedAt:'',stage:'diagnostic-record',category:'local_record_corrupt',
+        errorCode:'CORRUPT_INCIDENT_RECORD',sessionId:sessionId??null,
+        causes:[{name:'SyntaxError',message:'Local incident record is incomplete or invalid; original retained'}],
+        localFile:resolve(root,'incidents',name)};
+    }
     if(!sessionId||r.sessionId===sessionId)items.push(r);
   }
-  return items.sort((a,b)=>b.observedAt.localeCompare(a.observedAt)).slice(0,Math.min(limit,100));
+  return items.sort((a,b)=>Number(b.errorCode==='CORRUPT_INCIDENT_RECORD')-Number(a.errorCode==='CORRUPT_INCIDENT_RECORD')||b.observedAt.localeCompare(a.observedAt)).slice(0,Math.min(limit,100));
 }
 export function formatIncident(d) {
   return ['故障编号：'+d.id, '时间：'+d.observedAt, '分类：'+d.category,
@@ -63,7 +79,7 @@ export function formatIncident(d) {
     '未知用量保留预算预留；不会重放已执行工具。'].filter(Boolean).join('\n');
 }
 export async function recentFailures(root=stateRoot){
- return (await incidents({root,limit:100})).filter(r=>/^(?:session-)?[a-f0-9-]{36}$/i.test(r.sessionId??'')&&
+ return (await incidents({root,limit:100})).filter(r=>(r.errorCode==='CORRUPT_INCIDENT_RECORD'||/^(?:session-)?[a-f0-9-]{36}$/i.test(r.sessionId??''))&&
   !['tool-protocol-normalized','wire-preview'].includes(r.stage)).slice(0,10)
   .map(r=>({...r,log:formatIncident(r),localFile:resolve(root,'incidents',r.id+'.json')}));
 }

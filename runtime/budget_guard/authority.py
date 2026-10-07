@@ -10,12 +10,17 @@ import json
 import sqlite3
 import sys
 import os
+import re
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 BASE = HERE.parents[1]
 SHANGHAI = timezone(timedelta(hours=8), 'Asia/Shanghai')
+REQUEST_ATTRIBUTION_SCHEMA = '''CREATE TABLE IF NOT EXISTS request_attribution(
+  attempt_id TEXT PRIMARY KEY REFERENCES attempts(attempt_id),life_id TEXT,run_id TEXT,source_kind TEXT,
+  reason TEXT NOT NULL,provenance TEXT NOT NULL,origin_room_id TEXT,provider TEXT NOT NULL,
+  model TEXT NOT NULL,prompt_metadata_json TEXT NOT NULL)'''
 
 class BudgetDenied(RuntimeError):
     pass
@@ -115,6 +120,7 @@ class Authority:
             provider_request_id TEXT, owner_pid INTEGER, owner_birth TEXT, wire_hash TEXT,
             bound_at TEXT, settled_at TEXT);
         ''')
+        con.execute(REQUEST_ATTRIBUTION_SCHEMA)
         try:
             con.execute('BEGIN IMMEDIATE')
             if con.execute("SELECT value FROM meta WHERE key='initialized'").fetchone():
@@ -172,18 +178,22 @@ class Authority:
         orphaned = sum(r['state']=='sent' and (not r['owner_pid'] or process_birth(r['owner_pid'])!=r['owner_birth']) for r in all_open)
         unknown = sum(r['state']=='unknown' for r in all_open)+orphaned
         available = max(0,self.config['daily_limit_nano_cny']-settled-reserved)
-        limit_suspended = self.config.get('daily_limit_suspended_on') == day
-        reason = 'unresolved_usage' if unknown and self.config.get('stop_on_unknown_usage', True) else ('daily_budget_exhausted' if not available and not limit_suspended else None)
+        limits_enabled = self.config.get('budget_limits_enabled', True)
+        limit_suspended = not limits_enabled or self.config.get('daily_limit_suspended_on') == day
+        reason = 'unresolved_usage' if limits_enabled and unknown and self.config.get('stop_on_unknown_usage', True) else ('daily_budget_exhausted' if not available and not limit_suspended else None)
         if not reason and not limit_suspended and available < self.config['input_bound_tokens']*self.config['peak_nano_cny_per_token']['miss']+self.config['min_output_tokens']*self.config['peak_nano_cny_per_token']['output']:
             reason = 'insufficient_budget_for_safe_request'
-        if day > self.config['price_valid_through']:
+        if limits_enabled and day > self.config['price_valid_through']:
             reason = 'price_review_expired'
-        if con.execute("SELECT 1 FROM meta WHERE key='breach'").fetchone():
+        if limits_enabled and con.execute("SELECT 1 FROM meta WHERE key='breach'").fetchone():
             reason = 'provider_bound_or_usage_breach'
         if self.config.get('maintenance_pause'):
             reason = 'maintenance_pause'
         return {'date':day,'timezone':'Asia/Shanghai','unit':'nano_CNY','daily_limit':self.config['daily_limit_nano_cny'],
                 'daily_limit_enforced':not limit_suspended,'daily_limit_suspended_on':self.config.get('daily_limit_suspended_on'),
+                'budget_limits_enabled':limits_enabled,
+                'available_kind':'enforced_remaining' if not limit_suspended else 'reference_only_limits_disabled',
+                'price_review_expired':day > self.config['price_valid_through'],
                 'settled':settled,'unsettled_reservations':reserved,'available':available,
                 'input_tokens':sum((r['miss'] or 0)+(r['hit'] or 0) for r in rows),
                 'cache_miss_tokens':sum(r['miss'] or 0 for r in rows),
@@ -195,7 +205,7 @@ class Authority:
                 'upper_accounted_usage_unknown':any(r['state']=='accounted_upper' for r in rows),
                 'warning':not limit_suspended and settled+reserved>=self.config['warning_nano_cny'],
                 'conservative':not limit_suspended and settled+reserved>=self.config['conservative_nano_cny'],
-                'stop_reason':reason,'stop_on_unknown_usage':self.config.get('stop_on_unknown_usage', True),'cost_kind':'official_price_calculation_or_conservative_upper; not_account_debit_evidence',
+                'stop_reason':reason,'stop_on_unknown_usage':limits_enabled and self.config.get('stop_on_unknown_usage', True),'cost_kind':'official_price_calculation_or_conservative_upper; not_account_debit_evidence',
                 'cross_day_policy':'charge/reserve on each Shanghai day spanned; conservative duplicate attribution',
                 'price_checked_at':self.config['price_checked_at']}
 
@@ -241,11 +251,14 @@ class Authority:
             raise BudgetDenied('owner_process_not_alive')
         now = self.now()
         day = now.date().isoformat()
-        if day > c['price_valid_through']:
+        if c.get('budget_limits_enabled', True) and day > c['price_valid_through']:
             raise BudgetDenied('price_review_expired')
         con = self.connect()
         try:
             con.execute('BEGIN IMMEDIATE')
+            # Additive migration for an already-initialized legacy ledger;
+            # historical attempts remain unattributed, never guessed/backfilled.
+            con.execute(REQUEST_ATTRIBUTION_SCHEMA)
             status = self._status(con, day)
             if status['stop_reason']:
                 raise BudgetDenied(status['stop_reason'])
@@ -264,6 +277,27 @@ class Authority:
               VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
               (args['attempt_id'],args['request_id'],args['session_id'],args['purpose'],args['payload_hash'],
                now.isoformat(),day,'sent',reserved,max_output,c['input_bound_tokens'],json.dumps(self.price_snapshot()),owner,birth))
+            attribution = args.get('attribution') or {}
+            if not isinstance(attribution, dict) or set(attribution)-{'life_id','run_id','source_kind','reason','provenance','origin_room_id'}:
+                raise BudgetDenied('invalid_request_attribution')
+            for key,value in attribution.items():
+                if value is not None and (not isinstance(value,str) or len(value)>256):
+                    raise BudgetDenied('invalid_request_attribution')
+            prompt = args.get('prompt_metadata') or {}
+            if not isinstance(prompt,dict) or set(prompt)-{'system_hash','tools_hash','tool_order_hash','first_message_hash','system_bytes','tools_bytes','message_count','reasoning_effort','thinking_mode'}:
+                raise BudgetDenied('invalid_prompt_metadata')
+            for key,value in prompt.items():
+                if key in ('reasoning_effort','thinking_mode'):
+                    choices={'reasoning_effort':['low','medium','high','off'],'thinking_mode':['enabled','disabled','adaptive']}
+                    if value is not None and value not in choices[key]:raise BudgetDenied('invalid_prompt_metadata')
+                elif key.endswith('_hash'):
+                    if not isinstance(value,str) or not re.fullmatch(r'[a-f0-9]{64}',value):
+                        raise BudgetDenied('invalid_prompt_metadata')
+                else:integer(value)
+            con.execute('''INSERT INTO request_attribution(attempt_id,life_id,run_id,source_kind,reason,provenance,origin_room_id,provider,model,prompt_metadata_json)
+              VALUES(?,?,?,?,?,?,?,?,?,?)''',(args['attempt_id'],attribution.get('life_id'),attribution.get('run_id'),attribution.get('source_kind'),
+                attribution.get('reason') or 'other',attribution.get('provenance') or 'unattributed_legacy_transport',attribution.get('origin_room_id'),
+                c['provider'],c['model'],json.dumps(prompt,sort_keys=True)))
             con.commit()
             return {'allowed':True,'attempt_id':args['attempt_id'],'max_tokens':max_output,'reserved':reserved,
                     'input_bound':c['input_bound_tokens'],'admitted_day':day}
@@ -325,9 +359,9 @@ class Authority:
             if breach:
                 con.execute("INSERT OR REPLACE INTO meta VALUES('breach','provider_bound_violation')")
             con.commit()
-            if breach:
+            if breach and self.config.get('budget_limits_enabled', True):
                 raise BudgetDenied('provider_bound_violation_recorded_and_halted')
-            return {'settled':True,'charged':charge,'calculated':calculated}
+            return {'settled':True,'charged':charge,'calculated':calculated,'bound_breach_recorded':breach}
         except BaseException:
             con.rollback()
             raise

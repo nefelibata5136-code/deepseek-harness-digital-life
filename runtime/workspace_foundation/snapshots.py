@@ -9,13 +9,14 @@ import json
 import os
 from pathlib import Path
 import re
+import stat
 import subprocess
 import tempfile
 import sys
 import uuid
 
 HERE = Path(__file__).resolve().parent
-DEFAULT_WORKSPACE = Path(os.environ.get('DL_WORKSPACE', '.local/workspace'))
+DEFAULT_WORKSPACE = Path('.local/workspace')
 DEFAULT_STORE = HERE / 'protected' / 'persona'
 SKIP_DIRS = {'.git', 'node_modules', '__pycache__', '.venv', 'venv', '.cache',
              '.terminal-tmp', 'credentials', '.credentials', 'secrets', 'cache', '.ssh', '.aws', '.azure'}
@@ -99,32 +100,52 @@ class Versions:
                 if os.name == 'nt':
                     msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
 
-    def scan(self):
+    def scan(self, selected=None, safe_blobs=None):
         if not self.workspace.is_dir():
             raise ValueError('Workspace missing; refuse recording mass deletion')
         files, skipped = {}, []
-        def walk(folder):
-            for p in sorted(folder.iterdir()):
+        def inspect(p, before=None):
                 rel = p.relative_to(self.workspace).as_posix()
-                if linked(p):
+                # scandir supplies Windows metadata with directory enumeration.
+                # Reject symlinks/junctions before descending; keep the second
+                # stat after reading bytes, exact hashing and secret checks.
+                before = before if before is not None else p.lstat()
+                if stat.S_ISLNK(before.st_mode) or getattr(before, 'st_reparse_tag', 0) == getattr(stat, 'IO_REPARSE_TAG_MOUNT_POINT', 0xA0000003):
                     skipped.append({'path': rel, 'reason': 'link-or-junction'})
                 elif excluded(rel):
                     skipped.append({'path': rel, 'reason': 'excluded-path'})
-                elif p.is_dir():
+                elif stat.S_ISDIR(before.st_mode):
                     walk(p)
-                elif p.is_file():
-                    before = p.stat()
+                elif stat.S_ISREG(before.st_mode):
                     data = p.read_bytes()
                     after = p.stat()
                     if (before.st_mtime_ns, before.st_size) != (after.st_mtime_ns, after.st_size):
                         raise RuntimeError('File changed during scan: ' + rel)
-                    if SECRET.search(data):
+                    # Exact content identity with a previously protected blob
+                    # proves its secret check already passed. Still read/hash all
+                    # bytes: timestamps never grant permission to reuse a blob.
+                    oid = hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest().encode()
+                    if (safe_blobs or {}).get(rel) != oid and SECRET.search(data):
                         skipped.append({'path': rel, 'reason': 'possible-secret-content'})
                     else:
                         files[rel] = data
                 else:
                     skipped.append({'path': rel, 'reason': 'non-regular-file'})
-        walk(self.workspace)
+        def walk(folder):
+            with os.scandir(folder) as entries:
+                for entry in sorted(entries, key=lambda e: e.name):
+                    inspect(Path(entry.path), entry.stat(follow_symlinks=False))
+        if selected is None:
+            walk(self.workspace)
+        else:
+            p = self.workspace / selected
+            # Do not follow a junction inserted into any ancestor since admission.
+            if any(linked(a) for a in [p, *p.parents] if a.is_relative_to(self.workspace)):
+                skipped.append({'path': selected, 'reason': 'link-or-junction'})
+            elif p.exists():
+                if p.is_dir():
+                    raise ValueError('File snapshot target became a directory')
+                inspect(p)
         return files, skipped
 
     def head(self):
@@ -144,10 +165,47 @@ class Versions:
                 raise ValueError('Store bound to a different workspace')
         else:
             atomic_json(binding, {'workspace': str(self.workspace), 'created_at': now()})
-        files, skipped = self.scan()
-        # Build a complete index from regular files, including additions/deletions.
-        self.git('read-tree', '--empty')
+        parent = self.head()
+        policy_hash = hashlib.sha256(SECRET.pattern + repr((sorted(SKIP_DIRS), sorted(SKIP_NAMES), sorted(SKIP_SUFFIXES))).encode()).hexdigest()
+        trust_path = self.store / 'validated-content-policy.json'
+        try:
+            trust = json.loads(trust_path.read_text('utf-8'))
+        except (FileNotFoundError, json.JSONDecodeError):
+            trust = {}
+        trusted = trust.get('policy') == policy_hash and trust.get('commit') == parent
+        existing = {}
+        if parent:
+            for row in self.git('ls-tree', '-rz', parent).stdout.split(b'\0'):
+                if row:
+                    meta, name = row.split(b'\t', 1)
+                    existing[name.decode('utf-8')] = meta.split()[2]
+        selected = None
+        key = (context or {}).get('path_key', '*')
+        if key != '*' and parent and trusted:
+            target = Path(key).absolute()
+            if target.is_relative_to(self.workspace):
+                if not any(linked(a) for a in [target, *target.parents] if a.is_relative_to(self.workspace)):
+                    target = target.resolve()
+                selected = target.relative_to(self.workspace).as_posix()
+                if os.name == 'nt':
+                    # Admission keys are lowercased for Windows conflict checks;
+                    # Git paths must retain the original case, including deletes.
+                    selected = next((name for name in existing if name.casefold() == selected.casefold()), selected)
+        files, skipped = self.scan(selected, existing if trusted else None)
+        current = {rel: hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest().encode()
+                   for rel, data in files.items()}
+        same = (current == existing if selected is None else
+                current.get(selected) == existing.get(selected))
+        if parent and same:
+            # Exact content comparison is complete. An unchanged index/tree
+            # needs no staging files, Git index rebuild or commit plumbing.
+            return self._receipt(reason, context, parent, parent, files, skipped, selected, policy_hash)
+        # A known file changes only its own entry. Unknown operations and startup
+        # still capture all files. Never use mtime-only caches for protected bytes.
+        self.git('read-tree', parent if selected is not None else '--empty')
         entries = bytearray()
+        if selected is not None and selected not in files:
+            entries.extend(b'0 ' + b'0' * 40 + b'\t' + selected.encode('utf-8') + b'\0')
         if files:
             # Hash the exact scanned bytes, never re-read live workspace files.
             # One Git process avoids hundreds of Windows process launches per
@@ -156,16 +214,22 @@ class Versions:
                 stage = Path(staging)
                 if not stage.resolve().is_relative_to(self.store.resolve()):
                     raise RuntimeError('Snapshot staging escaped protected store')
-                paths = []
-                for index, data in enumerate(files.values()):
+                paths, changed, objects_by_path = [], [], {}
+                for index, (rel, data) in enumerate(files.items()):
+                    oid = hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest().encode()
+                    if existing.get(rel) == oid:
+                        objects_by_path[rel] = oid
+                        continue
                     path = stage / str(index)
                     path.write_bytes(data)
                     paths.append(json.dumps(path.as_posix(), ensure_ascii=False).encode('utf-8') + b'\n')
+                    changed.append(rel)
                 objects = self.git('hash-object', '-w', '--no-filters', '--stdin-paths',
-                                   data=b''.join(paths)).stdout.splitlines()
-                if len(objects) != len(files) or any(not re.fullmatch(rb'[0-9a-f]{40}|[0-9a-f]{64}', oid) for oid in objects):
+                                   data=b''.join(paths)).stdout.splitlines() if paths else []
+                if len(objects) != len(changed) or any(not re.fullmatch(rb'[0-9a-f]{40}|[0-9a-f]{64}', oid) for oid in objects):
                     raise RuntimeError('Incomplete snapshot object batch; no history published')
-                for rel, oid in zip(files, objects):
+                objects_by_path.update(zip(changed, objects))
+                for rel, oid in objects_by_path.items():
                     entries.extend(b'100644 ' + oid + b'\t' + rel.encode('utf-8') + b'\0')
         if entries:
             self.git('update-index', '-z', '--index-info', data=bytes(entries))
@@ -174,7 +238,6 @@ class Versions:
             # materializing its object. Store it before publishing any empty commit.
             self.git('hash-object', '-t', 'tree', '-w', '--stdin', data=b'')
         tree = self.git('write-tree').stdout.decode().strip()
-        parent = self.head()
         previous_tree = self.git('rev-parse', parent + '^{tree}').stdout.decode().strip() if parent else None
         commit = parent
         if tree != previous_tree:
@@ -182,13 +245,20 @@ class Versions:
             message = ('workspace: ' + reason + '\n\nCo-Authored-By: Codex <noreply@openai.com>\n').encode()
             commit = self.git(*args, data=message).stdout.decode().strip()
             self.git('update-ref', 'refs/heads/snapshots', commit, parent or '0' * 40)
+        return self._receipt(reason, context, commit, parent, files, skipped, selected, policy_hash)
+
+    def _receipt(self, reason, context, commit, parent, files, skipped, selected, policy_hash):
         receipt = {'observed_at': now(), 'reason': reason, 'context': context,
                    'commit': commit, 'new_commit': commit != parent, 'parent': parent,
-                   'files': len(files), 'excluded': skipped}
+                   'files': len(files), 'excluded': skipped,
+                   'scope': selected if selected is not None else '*'}
         with (self.store / 'events.jsonl').open('a', encoding='utf-8') as f:
             f.write(json.dumps(receipt, ensure_ascii=False) + '\n')
             f.flush()
             os.fsync(f.fileno())
+        # Cache permission is bound to both the exact tree and exclusion policy.
+        # A crash or a policy change forces a fresh content check, never a guess.
+        atomic_json(self.store / 'validated-content-policy.json', {'policy': policy_hash, 'commit': commit})
         return receipt
 
     def snapshot(self, reason='manual', context=None):

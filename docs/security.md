@@ -1,5 +1,10 @@
 # Security
 
+For the v0.2 modern worker template, credentials come from explicit Host process
+environment bindings in public-deployment.mjs; control tokens live in ignored local
+settings. The older Credential Manager implementation below remains an optional
+integration seam. Completely accessible same-user processes are not OS isolation.
+
 ## Credentials and Host boundary
 
 Keys, passwords, tokens and cookies belong to Host/OS credential brokers. Tool

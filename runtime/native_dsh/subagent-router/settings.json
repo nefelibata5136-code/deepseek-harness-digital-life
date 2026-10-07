@@ -1,0 +1,10 @@
+{
+  "defaultProvider": "codex",
+  "defaultModel": "gpt-5.6-luna",
+  "permissionMode": "dangerously-bypass-approvals-and-sandbox",
+  "deepseekEnabled": false,
+  "maxConcurrency": 6,
+  "runTimeoutMs": 2700000,
+  "queueTimeoutMs": 1800000,
+  "protectedRoot": ".local/advisors"
+}

@@ -3,7 +3,7 @@
 This repository contains generic code and synthetic examples, no identity body,
 conversations, real memory, notes, continuity/index text, Vault data, event history,
 browser profiles, screenshots, auth databases or machine credentials.
-The export uses an explicit code allowlist and fresh Git history. No original
+The export uses an explicit code allowlist and appends to the existing public history. No original private
 .git, history/snapshot objects, private recovery copies or environments were copied.
 Private acceptance records were inspected locally; only bounded outcomes are reported.
 

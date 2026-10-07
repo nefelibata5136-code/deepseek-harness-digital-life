@@ -7,7 +7,7 @@ import {projectActivity,splitProgress,emitToolPhase} from './events.mjs';
 import {progressInstruction,readPolicy,mountProgress} from './host.mjs';
 import {mountParallelFileVersions} from '../workspace_foundation/file-operation-locks.mjs';
 const root=await mkdtemp(join(tmpdir(),'persona-progress-'));
-const sessionId='11111111-1111-4111-8111-111111111111';
+const sessionId='147c2fff-ff1a-5d20-b057-cd3ec56745fa';
 const journal=createPhaseJournal(root);const handlers=new Map();
 const ctx={get:name=>name==='fs'?ctx.fs:name==='personaProgressPhases'?journal:null,on:(name,fn)=>handlers.set(name,fn),effect:()=>{},
   fs:{resolve:async p=>p,processPath:p=>p}};

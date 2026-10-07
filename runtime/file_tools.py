@@ -14,9 +14,9 @@ from zoneinfo import ZoneInfo
 
 BASE = Path(__file__).resolve().parents[1]
 WORKSPACE = Path(os.environ.get('DL_WORKSPACE', '.local/workspace'))
-LEGACY = Path(os.environ.get('DL_DATA', '.local')) / 'legacy'
-HISTORY = Path(os.environ.get('DL_DATA', '.local')) / 'history'
-SESSIONS = Path(os.environ.get('DL_DATA', '.local')) / 'tool-sessions'
+LEGACY = Path('.local/legacy')
+HISTORY = BASE / 'history'
+SESSIONS = BASE / 'sessions'
 SECRET = re.compile(r'\bsk-[A-Za-z0-9_-]{18,}|(?im:^\s*(?:DEEPSEEK_API_KEY|VOLC_TTS_API_KEY|APP_SECRET|COMPANION_PASSWORD|DASHSCOPE_API_KEY)\s*[=:]\s*[\"\']?[^\s\"\']{8,})')
 
 

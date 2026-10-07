@@ -1,59 +1,19 @@
-# Validation and evidence boundaries
+# v0.2.0 公开包验证
 
-Checked on 2026-10-06, Windows, Node 24.16.0 and Python 3.12.10.
-The clean export installs pinned DSH 0.2.0-rc.2 using npm ci. No production
-node_modules, user profile, live Session, identity or memory is used by these checks.
+2026-10-07 在 Windows / Node 24.16.0 / Python 3.12 下，使用固定 DSH 0.2.0-rc.2 npm 依赖及独立 Python venv 验证公开导出。
 
-## Public reproduction
-
-Run npm run setup, npm test and npm run smoke after installation.
-The test runner uses synthetic model/transport responses, isolated workspaces and
-fresh fixture Sessions. It does not call the real persona, send social messages,
-pay providers or inject input into the real desktop.
-
-| Check | Scope and result |
+| 检查 | 已验证事实 |
 |---|---|
-| Node unit suites | 50 tests: store/Resident/state board/admission/advisor/read policy/Bluesky/Dots; passed |
-| Memory | 22 tests: journal, identifiers, conflicts, sources and synthetic Qwen transport |
-| Budget authority | 23 tests, including independent-process reservations |
-| Usage report | 6 tests; no real payment claim |
-| Budget provider gate | 14 tests |
-| Self-maintenance | 9 scenarios: checkpoints, conflicts and restore refusal |
-| Web-search | 7 offline checks |
-| Credential output guard | 11 checks, synthetic secrets and isolated full-access fixture |
-| Self-authored compaction | 36 checks: exact body, references, flush failure and crash recovery |
-| Native Resident | Continue/rest, narrow child authority, explicit schedule delivery and loop semantics |
-| Private Vault storage | 14 checks: real Windows DPAPI, AES-GCM, cold process, corruption, opaque paths, no plaintext |
-| Host smoke | Native Agent loop, real isolated workspace read/write, zero paid calls, desktop off, periodic Resident off |
+| `npm test` | 267 项 Node tests、52 项 Python tests 通过；另含自维护回退、退役搜索、Key 输出屏蔽、压缩、Resident/Schedule 和 Vault 独立检查 |
+| `npm run smoke:multi` | 两个 production-mode 原生 worker，合成身份、本地官方 Adapter transport；World 零模型；独立 Core 在 wire；私聊不串流 |
+| 单生命停止与重开 | 停 A 时 B 存活；停用标记拒绝重新启动；明确恢复后同一 authority Session，没有重复执行既有输入 |
+| 实际 Chrome 加载 | A/B 私聊与只读互聊页面加载，脚本错误 0；未点击发送、未调用模型 |
+| 可选服务定向检查 | 官方账单 Decimal 聚合 4 tests；延迟登录跳转 fixture；Dots bridge 17 tests；均不使用真实账号 |
+| 全源码语法 | 697 个 JS/Python 文件通过；browser-injected 函数正文按其执行上下文验证 |
+| 发布内容扫描 | tree、index、全部可达公开 history 扫描；合成拒绝 fixture 必须匹配当前精确文件 hash；历史提交使用本提交的例外清单 |
 
-Deployment acceptance records were reviewed separately. Their private text,
-screenshots, identifiers and logs are not reproduced here. Stable labels in
-features.md describe bounded historical acceptance plus implementation; they
-do not claim this release repeated authenticated external-service acceptance.
+Source fixture、production assembly 的离线模拟、实际网页加载与真实线上验收分别记录。以上没有向作者主对话发送消息，没有重启作者运行中的 World/worker，也没有付费模型调用。独立 fixture 中的模型回复只用于驱动机制，不是生命本人的意见或验收。
 
-## Observed gaps
+尚未作为公开安装验收的项目：真实 Provider cache hit/miss、平台登录与官方扣款、外部账号真实往返、独立 Electron 安装器。源码存在或 receipt 不能补足这些验收。更多生命完整启动与其他 OS 的覆盖也需单独验证。
 
-- The deployment-wide runtime fixture did not pass reactivation of an enabled
-  periodic Resident after a cold restart in the clean export. Periodic mode stays
-  disabled. This is not a passed recovery claim; the portable runner omits that
-  deployment fixture and retains the independently passing Resident checks.
-- The old schedule fixture requires a deployment technical runner and profile.
-  Those are excluded. Native Resident tests cover explicit schedule delivery;
-  historical restart evidence is distinguished from new public reproduction.
-- The old Vault desktop projection fixture requires an excluded private desktop
-  adapter. Public tests cover storage only; full application projection is not
-  reaccepted in this export.
-- Browser profile restore, Dots/Slack genuine round trip and broad desktop app
-  coverage remain incomplete. Optional integration scripts are not promises of
-  authenticated acceptance on another machine.
-
-## Release privacy checks
-
-The export starts from an explicit source allowlist and a fresh Git repository.
-Audit scripts inspect tree, staged index and every reachable commit without
-printing matched values. Hash-bound exceptions cover inspected synthetic test
-credentials only. An independent local review checks personal identifiers,
-machine paths, private data artifacts and Markdown links. Old Git objects,
-private histories and validation transcripts are never imported.
-
-Scanners have limits: review changes and the staged tree before every publication.
+来源和公开文件 hashes 在 `source-provenance.json`。原始日志、合成 Session、截图/浏览器资料和本机路径保留本地，未加入发布仓库。

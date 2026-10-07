@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import {createFileLocks} from '../workspace_foundation/file-operation-locks.mjs';
 import {writeFile} from 'node:fs/promises';
-const locks=createFileLocks();const signal=new AbortController().signal;
+// Retain the legacy queue recovery fixture explicitly. Production defaults to
+// immediate conflict returns, covered by file-operation-locks.test.mjs.
+const locks=createFileLocks({waitForConflicts:true});const signal=new AbortController().signal;
 const first=await locks.acquire('a','a1',signal);let sameStarted=false;
 const same=locks.acquire('a','a2',signal).then(l=>{sameStarted=true;return l;});
 const different=await locks.acquire('b','b1',signal);assert.equal(sameStarted,false);

@@ -1,0 +1,11 @@
+import {writeFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+process._debugProcess(Number(process.argv[2]));
+let targets;for(let i=0;i<30;i++){try{targets=await(await fetch('http://127.0.0.1:9229/json/list')).json();break;}catch{await new Promise(r=>setTimeout(r,100));}}
+const socket=new WebSocket(targets[0].webSocketDebuggerUrl);await new Promise(r=>socket.addEventListener('open',r,{once:true}));let id=0;
+function call(expression){return new Promise((done,reject)=>{const n=++id,listener=e=>{const v=JSON.parse(e.data);if(v.id!==n)return;socket.removeEventListener('message',listener);if(v.error||v.result?.exceptionDetails)reject(Error(String(v.result?.exceptionDetails?.exception?.description??'BILLING_ELECTRON_CHECK_FAILED').split('\n')[0].replace(/[A-Za-z0-9_-]{32,}/g,'[REDACTED]')));else done(v.result.result.value);};socket.addEventListener('message',listener);socket.send(JSON.stringify({id:n,method:'Runtime.evaluate',params:{expression,returnByValue:true,awaitPromise:true}}));});}
+try{
+ const screenshot=fileURLToPath(new URL('../../../reports/deepseek-billing-repair-20261007/electron-status.png',import.meta.url));
+ const result=await call(`(async()=>{const electron=process.getBuiltinModule('module').createRequire(process.execPath)('electron');const w=electron.BrowserWindow.getAllWindows().find(w=>w.webContents.getURL().startsWith('dsh-app://app'));if(!w)throw Error('NO_DESKTOP_WINDOW');const value=await w.webContents.executeJavaScript("(async()=>{const id=window.__personaDesktopState?.selectedSessionId;const r=await fetch('/api/persona.billing?sessionId='+id);return {session_id:id,status:r.status,billing:r.ok?(await r.json()).billing:null,badge:document.querySelector('.yb-official-billing')?.textContent,badge_count:document.querySelectorAll('.yb-official-billing').length};})()");const shot=await w.webContents.capturePage();await process.getBuiltinModule('fs/promises').writeFile(${JSON.stringify(screenshot)},shot.toPNG());return {...value,native_electron:true,model_messages_sent:0};})()`);
+ await writeFile(new URL('../../../reports/deepseek-billing-repair-20261007/electron-validation.json',import.meta.url),JSON.stringify(result,null,2));console.log(JSON.stringify(result));
+}finally{await call("setTimeout(()=>process.getBuiltinModule('inspector').close(),300);true").catch(()=>{});socket.close();}

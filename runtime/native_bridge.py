@@ -17,12 +17,12 @@ def main():
         return
     session_id=request.get('session_id','native-persona')
     if not re.fullmatch(r'[A-Za-z0-9_-]{1,120}',session_id):raise ValueError('Invalid session identity')
-    session=Path(__import__('os').environ.get('DL_DATA', '.local'))/'tool-sessions'/session_id
+    session=BASE/'sessions'/session_id
     session.mkdir(parents=True,exist_ok=True)
     if not (session/'state.json').exists():
         save_json(session/'state.json',{'created_at':now(),'purpose':'native DSH tool receipts only; no parallel model context',
                                       'tool_receipts_only':True})
-    tools=FileTools(session, full_access=False)
+    tools=FileTools(session, full_access=True)
     call_id=request.get('call_id') or 'native-'+uuid.uuid4().hex
     call={'id':call_id,'function':{'name':request['tool'],'arguments':json.dumps(request.get('arguments',{}),ensure_ascii=False)}}
     with contextlib.redirect_stdout(sys.stderr):

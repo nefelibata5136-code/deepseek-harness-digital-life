@@ -1,6 +1,6 @@
 {
   "name": "deepseek-harness-digital-life",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -8,10 +8,16 @@
     "node": ">=24"
   },
   "scripts": {
-    "setup": "node scripts/configure.mjs",
-    "start": "node scripts/start.mjs",
-    "test": "node scripts/test.mjs",
+    "setup": "node scripts/setup-world.mjs",
+    "start": "node scripts/world.mjs",
+    "test": "node scripts/test.mjs && node scripts/test-multi.mjs",
     "audit": "python scripts/audit.py",
-    "smoke": "node scripts/smoke.mjs"
-  }
+    "smoke": "node scripts/smoke-multi.mjs",
+    "smoke:legacy": "node scripts/smoke.mjs",
+    "control": "node scripts/life-control.mjs",
+    "start:legacy": "node scripts/start.mjs",
+    "test:multi": "node scripts/test-multi.mjs",
+    "smoke:multi": "node scripts/smoke-multi.mjs"
+  },
+  "description": "Multi Digital Life on native DeepSeek Harness"
 }

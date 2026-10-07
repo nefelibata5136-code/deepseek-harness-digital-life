@@ -4,10 +4,12 @@ import { pythonAuthority } from '../budget_guard/provider_gate.mjs';
 import { defineTool } from '@deepseek-ai/dsh-tools';
 import { createScheduleAdmission } from '../time_host/budget-adapter.mjs';
 import {mountProgress} from '../activity_progress/host.mjs';
+import {mountBillingRuntime} from '../deepseek_billing/service/runtime.mjs';
 
 export const inject = ['sessionController', 'sessionPersistence', 'storageDomain', 'tools', 'workspaceFoundation', 'personaBudgetProtection', 'personaTasks', 'personaTurnAdmission','systemPrompt','agents'];
 export async function apply(ctx, config) {
   mountProgress(ctx);
+  if(config.officialBillingProducer===true)await mountBillingRuntime(ctx,{producer:true});
   if (ctx.personaBudgetProtection.fetch !== globalThis.fetch) throw new Error('Schedule Host must use D wire guard');
   const rpc = pythonAuthority(config);
   await rpc('init');

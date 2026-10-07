@@ -7,6 +7,13 @@ import { createHash } from 'node:crypto';
 import { toolPairingBalancedBefore } from '@deepseek-ai/dsh-compaction';
 
 export const pressureDefaults = { triggerRatio: 0.70, authorMaxTokens: 8192, marginTokens: 8192, maxAuthorSteps: 16, viewBytes: 180000 };
+// A projected request's usage calibrates the small view, not the untouched full
+// surface. Keep this transaction's view sticky, including across Host restarts.
+export function needsAuthorCapacityView(session, pending, generation, fits) {
+  if (!pending) return false;
+  return !fits || [...session.ownEvents()].some(e => e.seq > generation && e.type === 'user/message'
+    && e.data.source?.kind === 'self-compaction-view-manifest');
+}
 const eventsOf = session => [...session.ownEvents()];
 const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const bytes = value => Buffer.byteLength(JSON.stringify(value), 'utf8');
@@ -119,7 +126,9 @@ export function installAuthorPressure(ctx, engine, self, configuration = {}) {
     return adjusted;
   }
   ctx.on('llm/stream', (options, next) => (async function* () {
-    if (projected.has(options)) { yield* next(); return; }
+    // Downstream middleware may clone options (e.g. state-board); object identity
+    // alone cannot mark the nested, already projected request.
+    if (options.purpose === 'self-author-capacity-view' || projected.has(options)) { yield* next(); return; }
     const agent = options.sessionId && ctx.agents.get(options.sessionId);
     if (!agent) { yield* next(); return; }
     if (options.purpose === 'compaction') throw new LlmError('Auxiliary compaction is disabled: author must write the checkpoint', 'SELF_COMPACTION_REQUIRED');
@@ -130,7 +139,7 @@ export function installAuthorPressure(ctx, engine, self, configuration = {}) {
     const conservativeBytes = bytes(options.messages) + bytes(options.tools ?? []);
     const estimate = calibratedPressure(ctx, agent.session).totalTokens;
     const fits = conservativeBytes + output + config.marginTokens < capacity || estimate + output + config.marginTokens < capacity;
-    if (fits) { yield* next(); return; }
+    if (fits && !needsAuthorCapacityView(agent.session, s.pending, s.generation, fits)) { yield* next(); return; }
     if (!s.pending) throw new LlmError(`CONTEXT_WINDOW_EXCEEDED: input estimate ${estimate} + output ${output} + headroom ${config.marginTokens} cannot fit ${capacity}; request withheld`, 'CONTEXT_WINDOW_EXCEEDED');
     const adjusted = await authorView(agent, options, capacity);
     projected.add(adjusted);

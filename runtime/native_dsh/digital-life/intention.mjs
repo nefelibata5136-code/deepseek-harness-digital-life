@@ -3,8 +3,6 @@ import { readFile, readdir } from 'node:fs/promises';
 import { realpathSync } from 'node:fs';
 import { resolve, relative, isAbsolute } from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
 import { defineTool } from '@deepseek-ai/dsh-tools';
 import { startInProcessRun } from '@deepseek-ai/dsh-subagent-in-process-driver';
 import { allowedIntentionReadTool } from '../capabilities/read-policy.mjs';
@@ -32,7 +30,6 @@ const readTools = new Set(['read', 'read_source', 'list_files', 'search_history'
   'mcp__persona_browser__browser_list_tabs', 'mcp__persona_browser__browser_switch_tab', 'mcp__persona_browser__browser_status']);
 const outside = name => name === 'intention_web_search' || name.startsWith('mcp__persona_browser__') || name.startsWith('cap__bluesky__');
 const digest = value => createHash('sha256').update(value).digest('hex');
-const executeFile = promisify(execFile);
 const normalize = text => text.normalize('NFKC').toLowerCase().replace(/[\s。！？.!?]+/g, ' ').trim();
 
 export function aggregateSamples(samples) {
@@ -121,17 +118,11 @@ export function createIntentionSampler(ctx, { workspace, maxCalls = 6, maxTokens
       return { section: args.section, sourceSnapshotId: member.batch.snapshot.id, text: text.slice(offset, offset + limit),
         totalChars: text.length, offset, nextOffset: offset + limit < text.length ? offset + limit : null };
     });
-  tool('intention_web_search', '复用人格现有web-search CLI按需搜索公开资料；不强迫联网。必须先读内部。',
+  tool('intention_web_search', '通过官方 DSH ctx.web 使用 DeepSeek 原生搜索；不强迫联网。必须先读内部。',
     { query: { type: 'string', required: true }, source: { type: 'string', enum: ['bing', 'hn', 'se'] } }, async (args, exec, member) => {
       if (!member.reviewed) throw new Error('INTENTION_INTERNAL_FIRST');
       if (!args.query.trim() || args.query.length > 2000 || args.query.startsWith('--')) throw new Error('Invalid query');
-      const env = Object.fromEntries(Object.entries(process.env).filter(([key]) =>
-        ['DL_PYTHON', 'DL_WORKSPACE', 'DL_DATA', 'DSH_HOME', 'PATH', 'SYSTEMROOT', 'WINDIR', 'USERPROFILE', 'LOCALAPPDATA', 'APPDATA', 'TEMP', 'TMP'].includes(key.toUpperCase())));
-      const script = webSearchScript ?? resolve(workspace, 'tools/web-search/search.mjs');
-      const result = await executeFile(process.execPath, ['--preserve-symlinks-main', script, args.query, '--json', '--n=5',
-        '--src=' + (args.source ?? 'bing')], { env, cwd: workspace, windowsHide: true, timeout: 45000,
-        maxBuffer: 1024 * 1024, signal: exec.signal });
-      return { source: 'existing persona web-search CLI', ...JSON.parse(result.stdout) };
+      return { source: 'official DeepSeek native search', ...await ctx.web.search({query:args.query,maxResults:5},exec.signal) };
     });
   ctx.on('agent/request', async (request, next) => {
     const member = members.get(request.agent);

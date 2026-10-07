@@ -1,4 +1,5 @@
 import { apply as mountBudget } from '../budget_guard/provider_gate.mjs';
+export {inject} from '../budget_guard/provider_gate.mjs';
 export function apply(ctx, config) {
   mountBudget(ctx, config);
   const property = Object.getOwnPropertyDescriptor(globalThis, 'fetch');

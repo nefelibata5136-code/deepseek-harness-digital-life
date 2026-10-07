@@ -1,0 +1,9 @@
+{
+  "name": "@local/dsh-desktop-persona",
+  "version": "1.0.3",
+  "private": true,
+  "type": "module",
+  "main": "index.mjs",
+  "exports": {".": "./index.mjs", "./client": "./client.js", "./package.json": "./package.json"},
+  "dsh": {"client": {"platform": "web", "inject": ["@deepseek-ai/dsh-client-ui-layout", "@deepseek-ai/dsh-client-ui-sidebar", "@deepseek-ai/dsh-client-connection", "@deepseek-ai/dsh-client-ui-primitives"], "external": ["react", "@deepseek-ai/dsh-client-ui-primitives"]}}
+}

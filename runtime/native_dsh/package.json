@@ -10,6 +10,7 @@
     "@deepseek-ai/dsh-experimental-computer-use-cua-driver-native": "0.2.0-rc.2",
     "@deepseek-ai/dsh-subagent-codex": "0.2.0-rc.2",
     "@deepseek-ai/dsh-tool-session-query": "0.2.0-rc.2",
-    "koffi": "2.15.2"
+    "koffi": "2.15.2",
+    "playwright": "1.64.0-alpha-1790635538000"
   }
 }

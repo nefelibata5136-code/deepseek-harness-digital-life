@@ -50,7 +50,7 @@ def snapshot(base,config):
                 if key in messages and digest(compact(row))==messages[key]['revision_hash']:
                     locator={'path':str(path),'line':line,'record_id':row['id'],'source_kind':'selected_excerpt'}
                     if locator not in messages[key]['locators']:messages[key]['locators'].append(locator)
-    sessions=Path(config.get('native_sessions', str(Path(os.environ.get('DL_DATA', str(base/'.local')))/'dsh-home/sessions')))
+    sessions=base/config.get('native_sessions','runtime/native_dsh/home/sessions')
     workspace=Path(config['workspace']).resolve()
     if sessions.exists():
         for path in sessions.glob('*/*/session.v4.jsonl'):
@@ -124,7 +124,7 @@ def resolve_actor(base,call_id=None,authored_file=None):
     if not call_id and not authored_file:raise PermissionError('A native tool-call or authored-file receipt is required')
     content=Path(authored_file).read_text('utf-8') if authored_file else None
     matches=[]
-    for path in (Path(os.environ.get('DL_DATA', str(base/'.local')))/'dsh-home/sessions').glob('*/*/session.v4.jsonl'):
+    for path in (base/'runtime/native_dsh/home/sessions').glob('*/*/session.v4.jsonl'):
         records=read_lines(path,native=True)
         if not records:continue
         header=records[0][1]

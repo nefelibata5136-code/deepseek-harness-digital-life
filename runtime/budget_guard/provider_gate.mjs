@@ -6,6 +6,8 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import {recordIncident, errorChain, clean, isContextWindowExceeded} from '../native_dsh/recovery/diagnostics.mjs';
 import {normalizeToolProtocol,protocolMetadata} from '../native_dsh/recovery/tool-protocol.mjs';
+import {wirePromptMetadata} from '../native_dsh/multi-life/budget/provenance.mjs';
+import {hasOfficialSearchContext,dispatchOfficialSearch} from '../native_dsh/multi-life/platform/official-search.mjs';
 
 export class BudgetStop extends Error {
   constructor(reason) { super('BUDGET_STOP: ' + reason); this.reason = reason; this.code = 'DL_BUDGET_STOP'; this.retryable = false; }
@@ -57,6 +59,8 @@ export function createBudgetGate({ rpc, transport, screenRequest, stopOnUnknownU
   };
   const retained = async id => { await rpc('unknown', { attempt_id: id, reason: 'transport_or_usage_ambiguous' }); };
   const guardedFetch = async (input, init = {}) => {
+    if(hasOfficialSearchContext())return dispatchOfficialSearch(input,init,{transport,
+      rpc:(_c,operation,args)=>rpc(operation,args),screenRequest});
     if (uncertain && stopOnUnknownUsage) throw new BudgetStop('process_has_ambiguous_attempt');
     // A Request with a prebuilt body could hide bytes/options. Only the native
     // adapter's string URL + init JSON envelope is enabled in this composition.
@@ -100,6 +104,7 @@ export function createBudgetGate({ rpc, transport, screenRequest, stopOnUnknownU
       purpose: context.purpose, provider: context.provider, model: body.model,
       owner_pid: process.pid,
       max_tokens: body.max_tokens, payload_hash: createHash('sha256').update(init.body).digest('hex'),
+      attribution: context.attribution??{}, prompt_metadata: wirePromptMetadata(body),
     });
     if (admitted.allowed !== true || !Number.isSafeInteger(admitted.max_tokens) || admitted.max_tokens < 1)
       throw new BudgetStop('invalid_admission');
@@ -152,7 +157,7 @@ export function createBudgetGate({ rpc, transport, screenRequest, stopOnUnknownU
     const usage = {};
     const update = value => {
       if (!value || typeof value !== 'object') return;
-      for (const key of ['input_tokens', 'output_tokens', 'cache_read_input_tokens', 'cache_creation_input_tokens']) {
+      for (const key of ['input_tokens', 'output_tokens', 'cache_read_input_tokens', 'cache_creation_input_tokens', 'reasoning_tokens']) {
         if (value[key] === undefined) continue;
         if (!Number.isSafeInteger(value[key]) || value[key] < 0) throw new BudgetStop('invalid_usage');
         usage[key] = value[key];
@@ -182,8 +187,9 @@ export function createBudgetGate({ rpc, transport, screenRequest, stopOnUnknownU
       if (event.type === 'message_stop') {
         if (!started || !finalOutput || ['input_tokens','output_tokens','cache_read_input_tokens','cache_creation_input_tokens'].some(k => usage[k] === undefined))
           throw new BudgetStop('incomplete_authoritative_usage');
-        await rpc('settle', { attempt_id: id, usage,
-          provider_request_id: response.headers.get('request-id') ?? response.headers.get('x-request-id') ?? providerId });
+        const rawProviderId=response.headers.get('request-id')??response.headers.get('x-request-id')??providerId;
+        const safeProviderId=typeof rawProviderId==='string'&&/^[a-zA-Z0-9][a-zA-Z0-9:_./-]{0,255}$/.test(rawProviderId)&&!/^sk-/i.test(rawProviderId)?rawProviderId:null;
+        await rpc('settle', { attempt_id: id, usage,provider_request_id:safeProviderId });
         complete = true;
       }
     };
@@ -243,14 +249,17 @@ export function createBudgetGate({ rpc, transport, screenRequest, stopOnUnknownU
   };
 }
 
-export function mountBudgetGuard(ctx, gate) {
+export function mountBudgetGuard(ctx, gate, {resolveIdentity}={}) {
   ctx.on('llm/stream', (options, next) => (async function* () {
     if (options.provider !== 'deepseek-official' || options.model !== 'deepseek-flash')
       throw new BudgetStop('unpriced_provider_or_model');
+    const resolver=resolveIdentity??ctx.get?.('personaCostIdentity')?.resolve;
+    const attributed=resolver?await resolver(options,ctx.agents?.get(options.sessionId)):null;
+    const attribution=attributed?Object.fromEntries(['life_id','run_id','source_kind','reason','provenance','origin_room_id'].map(key=>[key,attributed[key]??null])):{};
     const context = { provider: options.provider, model: options.model,
       sessionId: String(options.sessionId ?? 'native-unattributed'),
-      requestId: String(options.requestId ?? randomUUID()),
-      purpose: String(options.purpose ?? 'agent-loop') };
+      requestId: String(attributed?.request_id??options.requestId??randomUUID()),
+      purpose: String(options.purpose ?? 'agent-loop'),attribution };
     const iterator = await gate.within(context, () => next()[Symbol.asyncIterator]());
     try {
       while (true) {
@@ -280,15 +289,18 @@ export function mountBudgetGuard(ctx, gate) {
   ctx.effect(() => () => gate.drain(), 'persona.budget.drain');
 }
 
-export const inject = [];
+// Production apply runs in a Cordis plugin child Context. Optional chaining
+// does not bypass its service-access guard; trusted attribution requires the
+// real Session's Agent, so declare this service before installing the gate.
+export const inject = ['agents'];
 export function apply(ctx, config) {
   const policy=JSON.parse(readFileSync(new URL('./config.json',import.meta.url),'utf8'));
   const gate = createBudgetGate({ rpc: pythonAuthority(config), transport: globalThis.fetch.bind(globalThis),
     screenRequest: globalThis.fetch.keyOutputPreflight,
-    stopOnUnknownUsage: policy.stop_on_unknown_usage !== false });
+    stopOnUnknownUsage: policy.budget_limits_enabled !== false && policy.stop_on_unknown_usage !== false });
   // Prevent ordinary plugin replacement from silently removing the gate. This
   // is not an OS egress sandbox: raw sockets/undici/pre-captured fetch remain an
   // explicitly reported boundary requiring A's composition/credentials controls.
   Object.defineProperty(globalThis, 'fetch', { value: gate.fetch, configurable: false, writable: false });
-  mountBudgetGuard(ctx, gate);
+  mountBudgetGuard(ctx, gate,{resolveIdentity:config.trustedIdentityResolver});
 }
