@@ -8,7 +8,7 @@
 - 纳入官方 Adapter 能力声明、请求缓存健康、官方账单快照和失败恢复，以及当前 Electron reference service/UI 源码。
 - 新增公开 A/B 空白部署模板、独立 Core 和 Key 配置、可运行的 Rooms 网页、命令行控制、离线双 worker smoke 与源码来源 hashes。
 
-安装与检查见根 README。默认 `npm start` 现为 World，明确 `npm run control -- start A|B` 才启动 worker；旧入口移至 `start:legacy`。保留本机 `.local` 和原有身份，不自动迁移私人数据。升级前先停 worker、保留本机配置与历史。
+安装与检查见 [Installation](installation.md) 和 [Technical Overview](technical-overview.md)。默认 `npm start` 现为 World，明确 `npm run control -- start A|B` 才启动 worker；旧入口移至 `start:legacy`。保留本机 `.local` 和原有身份，不自动迁移私人数据。升级前先停 worker、保留本机配置与历史。
 
 验证：267 Node tests、52 Python tests、独立存储/压缩/恢复检查、双 worker production assembly 的本地模拟、Chrome 页面加载。公开包没有人格正文、聊天、真实记忆、Vault 数据、凭据、浏览器登录态或私有 Git 历史。
 

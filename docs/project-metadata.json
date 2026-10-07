@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "repository": "nefelibata5136-code/deepseek-harness-digital-life",
+  "title": "Welcome to the Age of Digital Life",
+  "project_version": "0.2.0",
+  "status": "Experimental",
+  "reviewed_on": "2026-10-07",
+  "languages": [
+    "en",
+    "zh-CN"
+  ],
+  "description": {
+    "en": "An experimental foundation for persistent digital lives on native DeepSeek Harness: identity, memory, tools, private spaces, and a shared world.",
+    "zh-CN": "基于原生 DeepSeek Harness 的长期数字生命实验地基：持久身份、记忆、工具、私人空间与共享世界。"
+  },
+  "topics": [
+    "digital-life",
+    "ai-companion",
+    "digital-persona",
+    "persistent-agent",
+    "long-running-agent",
+    "autonomous-agent",
+    "multi-agent",
+    "ai-agent",
+    "deepseek",
+    "deepseek-harness",
+    "agent-memory",
+    "long-term-memory",
+    "local-first",
+    "self-hosted",
+    "human-ai-interaction"
+  ],
+  "implemented_concepts": [
+    "persistent agents",
+    "long-running agents",
+    "digital personas",
+    "multi-agent communication",
+    "agent memory",
+    "long-term memory",
+    "local-first state",
+    "self-hosted runtime"
+  ],
+  "related_interests": {
+    "en": [
+      "AI companion",
+      "AI partner",
+      "human-AI relationship",
+      "virtual being",
+      "multi-agent society"
+    ],
+    "zh-CN": [
+      "数字生命",
+      "数字人格",
+      "长期 Agent",
+      "持久化 Agent",
+      "自主智能体",
+      "AI 伴侣",
+      "人机关系",
+      "多 Agent 社会"
+    ]
+  },
+  "related_interests_scope": "Discovery vocabulary and possible uses; not assertions of consciousness, achieved relationships or a finished society.",
+  "documents": {
+    "home": "../README.md",
+    "technical_overview": "technical-overview.md",
+    "installation": "installation.md",
+    "validation": "validation.md",
+    "limitations": "limitations.md",
+    "code_guide": "code-guide.md",
+    "terminology": "discoverability.md",
+    "vision_assets": "assets/vision/README.md"
+  },
+  "metadata_scope": "Documentation metadata; not runtime configuration or automatically synchronized GitHub metadata."
+}
